@@ -1,9 +1,69 @@
 "use client"
 
+import { useEffect, useState } from "react"
+import axios from "axios"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import axiosInstance from "@/components/request/reques"
+
+type StatData = { label: string; value: number; color?: string }
+
+const COLORS_CAMP = ["#4C51BF", "#D4AF37", "#001F5B", "#10B981", "#F59E0B"]
+const COLORS_SEX = ["#3B82F6", "#EC4899"]
+const COLORS_PAYS = ["#10B981", "#F59E0B", "#8B5CF6", "#6B7280"]
+const COLORS_VILLE = ["#EF4444", "#F97316", "#06B6D4", "#8B5CF6", "#6B7280"]
 
 export function DashboardCharts() {
+  const [stats, setStats] = useState<{
+    parCamp: StatData[]
+    parSexe: StatData[]
+    parPays: StatData[]
+    parVille: StatData[]
+  }>({
+    parCamp: [],
+    parSexe: [],
+    parPays: [],
+    parVille: [],
+  })
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axiosInstance.get("/statistique/admin/repartition")
+         setStats({
+            parCamp: Array.isArray(res.data.parCamp)
+              ? res.data.parCamp.map((s: StatData, i: number) => ({
+                  ...s,
+                  color: COLORS_CAMP[i % COLORS_CAMP.length],
+                }))
+              : [],
+            parSexe: Array.isArray(res.data.parSexe)
+              ? res.data.parSexe.map((s: StatData, i: number) => ({
+                  ...s,
+                  color: COLORS_SEX[i % COLORS_SEX.length],
+                }))
+              : [],
+            parPays: Array.isArray(res.data.parPays)
+              ? res.data.parPays.map((s: StatData, i: number) => ({
+                  ...s,
+                  color: COLORS_PAYS[i % COLORS_PAYS.length],
+                }))
+              : [],
+            parVille: Array.isArray(res.data.parVille)
+              ? res.data.parVille.map((s: StatData, i: number) => ({
+                  ...s,
+                  color: COLORS_VILLE[i % COLORS_VILLE.length],
+                }))
+              : [],
+          })
+
+      } catch (error) {
+        console.error("Erreur lors de la récupération des statistiques :", error);
+      }
+    }
+    fetchData()
+  }, [])
+
   return (
     <Card>
       <CardHeader>
@@ -18,47 +78,34 @@ export function DashboardCharts() {
             <TabsTrigger value="country">Par pays</TabsTrigger>
             <TabsTrigger value="city">Par ville</TabsTrigger>
           </TabsList>
+
           <TabsContent value="camp" className="pt-10 pb-0">
-            <div className="h-[400px] flex items-center justify-center">
-              <div className="flex items-center space-x-8">
-                <ChartBar label="Agneaux" value={45} color="#4C51BF" />
-                <ChartBar label="Jeunes" value={45} color="#D4AF37" />
-                <ChartBar label="Leaders" value={20} color="#001F5B" />
-              </div>
-            </div>
+            <ChartBarGroup data={stats.parCamp} />
           </TabsContent>
           <TabsContent value="gender" className="pt-4">
-            <div className="h-[300px] flex items-center justify-center">
-              <div className="flex items-center space-x-8">
-                <ChartBar label="Hommes" value={55} color="#3B82F6" />
-                <ChartBar label="Femmes" value={45} color="#EC4899" />
-              </div>
-            </div>
+            <ChartBarGroup data={stats.parSexe} />
           </TabsContent>
           <TabsContent value="country" className="pt-4">
-            <div className="h-[300px] flex items-center justify-center">
-              <div className="flex items-center space-x-8">
-                <ChartBar label="France" value={30} color="#10B981" />
-                <ChartBar label="Côte d'Ivoire" value={25} color="#F59E0B" />
-                <ChartBar label="Cameroun" value={15} color="#8B5CF6" />
-                <ChartBar label="Autres" value={30} color="#6B7280" />
-              </div>
-            </div>
+            <ChartBarGroup data={stats.parPays} />
           </TabsContent>
           <TabsContent value="city" className="pt-4">
-            <div className="h-[300px] flex items-center justify-center">
-              <div className="flex items-center space-x-8">
-                <ChartBar label="Paris" value={20} color="#EF4444" />
-                <ChartBar label="Abidjan" value={18} color="#F97316" />
-                <ChartBar label="Lyon" value={12} color="#06B6D4" />
-                <ChartBar label="Douala" value={10} color="#8B5CF6" />
-                <ChartBar label="Autres" value={40} color="#6B7280" />
-              </div>
-            </div>
+            <ChartBarGroup data={stats.parVille} />
           </TabsContent>
         </Tabs>
       </CardContent>
     </Card>
+  )
+}
+
+function ChartBarGroup({ data }: { data: StatData[] }) {
+  return (
+    <div className="h-[400px] flex items-center justify-center">
+      <div className="flex items-center space-x-8">
+        {data.map((item, index) => (
+          <ChartBar key={index} label={item.label} value={item.value} color={item.color ?? "#999"} />
+        ))}
+      </div>
+    </div>
   )
 }
 

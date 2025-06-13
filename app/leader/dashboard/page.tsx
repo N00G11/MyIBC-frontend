@@ -10,9 +10,6 @@ export default function LeaderDashboard() {
         <h1 className="text-2xl font-bold text-[#001F5B]">
           Mon tableau de bord
         </h1>
-        <div className="text-sm text-gray-600">
-          Centre Évangélique - Paris, France
-        </div>
       </div>
 
       <LeaderStats />

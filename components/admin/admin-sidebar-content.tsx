@@ -30,12 +30,7 @@ const menuItems = [
     title: "Badges",
     href: "/admin/badges",
     icon: FileText,
-  },
-  {
-    title: "Paramètres",
-    href: "/admin/settings",
-    icon: Settings,
-  },
+  }
 ]
 
 export function AdminSidebarContent() {

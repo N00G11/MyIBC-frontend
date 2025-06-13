@@ -1,58 +1,45 @@
 "use client";
 
-import { DollarSign, Edit, Trash2, Users } from "lucide-react";
+import { DollarSign } from "lucide-react";
 import { Card, CardContent, CardHeader } from "./ui/card";
-import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import axiosInstance from "./request/reques";
 
-interface CampType {
-  id: string;
-  nom: string;
-  description: string;
-  montant: number;
-  ageMin: number;
-  ageMax: number;
-  participants: number;
-  couleur: string;
+type campType = {
+  id: number
+  type: string
+  description: string
+  trancheAge: string
+  prix: number
+  devise: string
+  participants: number
 }
 
 export function CampSelect() {
-  const [campTypes, setCampTypes] = useState<CampType[]>([
-    {
-      id: "1",
-      nom: "Agneaux",
-      description: "Camp pour les jeunes enfants de 6 à 12 ans",
-      montant: 150,
-      ageMin: 6,
-      ageMax: 12,
-      participants: 89,
-      couleur: "bg-green-100 text-green-800",
-    },
-    {
-      id: "2",
-      nom: "Jeunes",
-      description: "Camp pour les adolescents et jeunes adultes de 13 à 30 ans",
-      montant: 300,
-      ageMin: 13,
-      ageMax: 30,
-      participants: 102,
-      couleur: "bg-blue-100 text-blue-800",
-    },
-    {
-      id: "3",
-      nom: "Leaders",
-      description: "Camp de formation pour les responsables et dirigeants",
-      montant: 450,
-      ageMin: 25,
-      ageMax: 65,
-      participants: 54,
-      couleur: "bg-purple-100 text-purple-800",
-    },
-  ]);
+  const [campTypes, setCampTypes] = useState<campType[]>([])
+  const email = useSearchParams().get("email")
+  const [error, setError] = useState<string | null>(null)
 
   const router = useRouter()
+
+   useEffect(() => {
+    fetchCamps();
+  }, [])
+
+   const fetchCamps = async () => {
+    try {
+      setError(null)
+      const response = await axiosInstance.get("/camp/all")
+      const campData = await response.data
+      const camps: campType[] = Array.isArray(campData) ? campData : campData.jobs || []
+      setCampTypes(camps)
+    } catch (err) {
+      console.error("Erreur lors du chargement des données :", err)
+      setError(err instanceof Error ? err.message : "Une erreur inconnue est survenue")
+    }
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -60,16 +47,16 @@ export function CampSelect() {
         <Card
           key={camp.id}
           className="ibc-card cursor-pointer hover:shadow-xl transition-shadow duration-200"
-          onClick={() => router.push("/inscription")}
+          onClick={() => router.push(`/inscription?id=${camp.id}&email=${email}`)}
         >
           <CardHeader>
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-3">
-                <Badge className={`${camp.couleur} font-semibold`}>
-                  {camp.nom}
+                <Badge className={`bg-ibc-navy font-semibold`}>
+                  {camp.type}
                 </Badge>
                 <span className="text-sm text-gray-500">
-                  {camp.ageMin}-{camp.ageMax} ans
+                  {camp.trancheAge} ans
                 </span>
               </div>
             </div>
@@ -85,7 +72,7 @@ export function CampSelect() {
                 <div className="text-center  p-3 bg-gray-50 rounded-lg">
                   <DollarSign className="h-5 w-5 text-ibc-gold mx-auto mb-1" />
                   <div className="text-lg   font-bold text-ibc-navy">
-                    {camp.montant} €
+                    {camp.prix} €
                   </div>
                   <div className="text-xs text-gray-500">Tarif</div>
                 </div>

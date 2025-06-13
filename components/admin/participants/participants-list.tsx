@@ -1,8 +1,20 @@
 "use client"
 
-import { useState } from "react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useEffect, useState } from "react"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -14,83 +26,78 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
-import { Edit, FileText, MoreHorizontal, Search, Trash } from "lucide-react"
+import {
+  Edit,
+  FileText,
+  MoreHorizontal,
+  Search,
+  Trash,
+} from "lucide-react"
+import axiosInstance from "@/components/request/reques"
 
-const initialParticipants = [
-  {
-    id: 1,
-    name: "Pierre Dubois",
-    gender: "M",
-    age: 15,
-    campType: "Jeunes",
-    country: "France",
-    city: "Paris",
-    leader: "Jean Dupont",
-    status: "registered",
-  },
-  {
-    id: 2,
-    name: "Aminata Diallo",
-    gender: "F",
-    age: 22,
-    campType: "Jeunes",
-    country: "Sénégal",
-    city: "Dakar",
-    leader: "Thomas Diallo",
-    status: "registered",
-  },
-  {
-    id: 3,
-    name: "Lucas Martin",
-    gender: "M",
-    age: 10,
-    campType: "Agneaux",
-    country: "France",
-    city: "Lyon",
-    leader: "Sophie Martin",
-    status: "pending",
-  },
-  {
-    id: 4,
-    name: "Kofi Mensah",
-    gender: "M",
-    age: 28,
-    campType: "Leaders",
-    country: "Ghana",
-    city: "Accra",
-    leader: "Jean Dupont",
-    status: "registered",
-  },
-  {
-    id: 5,
-    name: "Fatou Sow",
-    gender: "F",
-    age: 18,
-    campType: "Jeunes",
-    country: "Côte d'Ivoire",
-    city: "Abidjan",
-    leader: "Marie Koné",
-    status: "registered",
-  },
-]
+// TypeScript : définition du type basé sur l'entité Inscription
+type Inscription = {
+  id: number
+  date: string
+  participant: {
+    username: string
+    email: string
+    telephone: string
+    sexe: string
+    dateNaissance: number
+    pays: string
+    ville: string
+    delegation: string
+  }
+  camp: {
+    type: string
+  }
+  dirigeantAssigne: {
+    username: string
+  }
+}
 
-export function ParticipantsList() {
+export function InscriptionsList() {
   const [searchTerm, setSearchTerm] = useState("")
-  const [participants, setParticipants] = useState(initialParticipants)
+  const [inscriptions, setInscriptions] = useState<Inscription[]>([])
+  const [error, setError] = useState<string | null>(null)
 
-  const filteredParticipants = participants.filter(
-    (participant) =>
-      participant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      participant.campType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      participant.country.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      participant.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      participant.leader.toLowerCase().includes(searchTerm.toLowerCase()),
+  // Fonction utilitaire pour calculer l'âge
+  const calculerAge = (anneeNaissance: number) => {
+    return new Date().getFullYear() - anneeNaissance
+  }
+
+  useEffect(() => {
+    fetchinscriptions();
+  }, [])
+
+
+  const fetchinscriptions = async () => {
+    try {
+      setError(null)
+      const response = await axiosInstance.get("/inscription/all")
+      const inscriptionData = await response.data
+      const ins: Inscription[] = Array.isArray(inscriptionData) ? inscriptionData : inscriptionData.ins || []
+      setInscriptions(ins)
+    } catch (err) {
+      console.error("Erreur lors du chargement des données :", err)
+      setError(err instanceof Error ? err.message : "Une erreur inconnue est survenue")
+    }
+  }
+
+  const filtered = inscriptions.filter(
+    (ins) =>
+      ins.participant.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ins.participant.pays.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ins.participant.ville.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ins.camp.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ins.dirigeantAssigne.username.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Liste des participants</CardTitle>
+        <CardTitle>Liste des inscriptions</CardTitle>
         <div className="flex items-center gap-2">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -109,32 +116,38 @@ export function ParticipantsList() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nom</TableHead>
+                <TableHead>Nom complet</TableHead>
+                <TableHead>Adresse email</TableHead>
+                <TableHead>Téléphone</TableHead>
                 <TableHead>Genre</TableHead>
                 <TableHead>Âge</TableHead>
                 <TableHead>Type de camp</TableHead>
                 <TableHead>Pays</TableHead>
                 <TableHead>Ville</TableHead>
                 <TableHead>Dirigeant</TableHead>
-                <TableHead>Statut</TableHead>
                 <TableHead className="w-[80px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredParticipants.map((participant) => (
-                <TableRow key={participant.id}>
-                  <TableCell className="font-medium">{participant.name}</TableCell>
-                  <TableCell>{participant.gender}</TableCell>
-                  <TableCell>{participant.age}</TableCell>
-                  <TableCell>{participant.campType}</TableCell>
-                  <TableCell>{participant.country}</TableCell>
-                  <TableCell>{participant.city}</TableCell>
-                  <TableCell>{participant.leader}</TableCell>
-                  <TableCell>
-                    <Badge variant={participant.status === "registered" ? "default" : "outline"}>
-                      {participant.status === "registered" ? "Inscrit" : "En attente"}
-                    </Badge>
+              {filtered.map((inscription) => (
+                <TableRow key={inscription.id}>
+                  <TableCell className="font-medium">
+                    {inscription.participant.username}
                   </TableCell>
+                  <TableCell className="font-medium">
+                    {inscription.participant.email}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {inscription.participant.telephone}
+                  </TableCell>
+                  <TableCell>{inscription.participant.sexe}</TableCell>
+                  <TableCell>
+                    {calculerAge(inscription.participant.dateNaissance)}
+                  </TableCell>
+                  <TableCell>{inscription.camp.type}</TableCell>
+                  <TableCell>{inscription.participant.pays}</TableCell>
+                  <TableCell>{inscription.participant.ville}</TableCell>
+                  <TableCell>{inscription.dirigeantAssigne.username}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

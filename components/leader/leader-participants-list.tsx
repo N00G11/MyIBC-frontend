@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -9,121 +9,126 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, FileText, Mail, Phone } from "lucide-react";
 import { usePagination } from "@/hooks/use-pagination";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
+import { useSearchParams } from "next/navigation";
+import axiosInstance from "../request/reques";
 
-const myParticipants = [
-  {
-    id: 1,
-    name: "Pierre Dubois",
-    gender: "M",
-    age: 15,
-    campType: "Jeunes",
-    email: "pierre.dubois@email.com",
-    phone: "+33 6 12 34 56 78",
-    city: "Paris",
-    status: "confirmed",
-    amount: 75,
-  },
-  {
-    id: 2,
-    name: "Marie Martin",
-    gender: "F",
-    age: 17,
-    campType: "Jeunes",
-    email: "marie.martin@email.com",
-    phone: "+33 6 23 45 67 89",
-    city: "Paris",
-    status: "confirmed",
-    amount: 75,
-  },
-  {
-    id: 3,
-    name: "Lucas Dupont",
-    gender: "M",
-    age: 10,
-    campType: "Agneaux",
-    email: "lucas.dupont@email.com",
-    phone: "+33 6 34 56 78 90",
-    city: "Paris",
-    status: "pending",
-    amount: 50,
-  },
-  {
-    id: 4,
-    name: "Sophie Bernard",
-    gender: "F",
-    age: 28,
-    campType: "Leaders",
-    email: "sophie.bernard@email.com",
-    phone: "+33 6 45 67 89 01",
-    city: "Paris",
-    status: "confirmed",
-    amount: 100,
-  },
-  {
-    id: 5,
-    name: "Antoine Moreau",
-    gender: "M",
-    age: 19,
-    campType: "Jeunes",
-    email: "antoine.moreau@email.com",
-    phone: "+33 6 56 78 90 12",
-    city: "Paris",
-    status: "confirmed",
-    amount: 75,
-  },
-  {
-    id: 6,
-    name: "Emma Leroy",
-    gender: "F",
-    age: 11,
-    campType: "Agneaux",
-    email: "emma.leroy@email.com",
-    phone: "+33 6 67 89 01 23",
-    city: "Paris",
-    status: "confirmed",
-    amount: 50,
-  },
-  {
-    id: 7,
-    name: "Thomas Petit",
-    gender: "M",
-    age: 22,
-    campType: "Jeunes",
-    email: "thomas.petit@email.com",
-    phone: "+33 6 78 90 12 34",
-    city: "Paris",
-    status: "pending",
-    amount: 75,
-  },
-  {
-    id: 8,
-    name: "Camille Roux",
-    gender: "F",
-    age: 30,
-    campType: "Leaders",
-    email: "camille.roux@email.com",
-    phone: "+33 6 89 01 23 45",
-    city: "Paris",
-    status: "confirmed",
-    amount: 100,
-  },
-];
+// -----------------------
+// Types
+// -----------------------
+interface Participant {
+  id: number;
+  username: string;
+  sexe: string;
+  dateNaissance: string;
+  email: string;
+  telephone: string;
+  ville: string;
+}
 
+interface Camp {
+  type: string;
+  prix: number;
+}
+
+interface Inscription {
+  id: number;
+  participant: Participant;
+  camp: Camp;
+  montant?: number;
+  status?: "confirmed" | "pending";
+}
+
+type Status = "confirmed" | "pending";
+
+interface FormattedParticipant {
+  id: number;
+  name: string;
+  gender: string;
+  age: number;
+  campType: string;
+  email: string;
+  phone: string;
+  city: string;
+  status: Status;
+  amount: number;
+}
+
+// -----------------------
+// Fonction utilitaire
+// -----------------------
+function getAge(dateString: string): number {
+  const today = new Date();
+  const birthDate = new Date(dateString);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+}
+
+// -----------------------
+// Composant principal
+// -----------------------
 export function LeaderParticipantsList() {
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email");
+
+  const [participants, setParticipants] = useState<FormattedParticipant[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredParticipants = myParticipants.filter(
-    (participant) =>
-      participant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      participant.campType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      participant.email.toLowerCase().includes(searchTerm.toLowerCase())
+  useEffect(() => {
+    if (!email) return;
+
+    const fetchParticipants = async () => {
+      try {
+        const response = await axiosInstance.get<Inscription[]>(
+          `/statistique/dirigeant/allParticipants/${email}`
+        );
+        const data = response.data;
+
+        const mapped: FormattedParticipant[] = data.map((inscription) => ({
+          id: inscription.id,
+          name: inscription.participant.username,
+          gender: inscription.participant.sexe,
+          age: getAge(inscription.participant.dateNaissance),
+          campType: inscription.camp.type,
+          email: inscription.participant.email,
+          phone: inscription.participant.telephone,
+          city: inscription.participant.ville,
+          status: inscription.status ?? "confirmed",
+          amount: inscription.camp.prix ?? 0,
+        }));
+
+        setParticipants(mapped);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error("Erreur lors du chargement des participants:", error.message);
+        } else {
+          console.error("Erreur inconnue lors du chargement des participants");
+        }
+      }
+    };
+
+    fetchParticipants();
+  }, [email]);
+
+  const filteredParticipants = participants.filter((p) =>
+    [p.name, p.campType, p.email, p.phone, p.city].some((val) =>
+      val.toLowerCase().includes(searchTerm.toLowerCase())
+    )
   );
 
   const {
@@ -142,23 +147,39 @@ export function LeaderParticipantsList() {
     initialPageSize: 5,
   });
 
+  if (!email) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Erreur</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>
+            Paramètre <strong>email</strong> manquant dans l'URL.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Liste de mes participants</CardTitle>
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Rechercher..."
-              className="w-[200px] pl-8"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
+      {/* Remplacement de CardHeader par div pour éviter bouton imbriqué */}
+      <div className="flex flex-row items-center justify-between p-4 border-b border-gray-200">
+        <CardTitle>Liste des participants</CardTitle>
+        <div className="relative">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Rechercher..."
+            className="w-[200px] pl-8"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            aria-label="Rechercher des participants"
+          />
         </div>
-      </CardHeader>
+      </div>
+
       <CardContent>
         <div className="rounded-md border">
           <Table>
@@ -170,57 +191,44 @@ export function LeaderParticipantsList() {
                 <TableHead>Contact</TableHead>
                 <TableHead>Montant</TableHead>
                 <TableHead>Statut</TableHead>
-                <TableHead className="w-[100px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedData.map((participant) => (
-                <TableRow key={participant.id}>
-                  <TableCell className="font-medium">
-                    {participant.name}
-                  </TableCell>
-                  <TableCell>{participant.age} ans</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{participant.campType}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-1 text-xs">
-                        <Mail className="h-3 w-3" />
-                        <span className="truncate max-w-[120px]">
-                          {participant.email}
-                        </span>
+              {paginatedData.length > 0 ? (
+                paginatedData.map((p) => (
+                  <TableRow key={p.id}>
+                    <TableCell className="font-medium">{p.name}</TableCell>
+                    <TableCell>{p.age} ans</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{p.campType}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-1 text-xs">
+                        <div className="flex items-center gap-1">
+                          <Mail className="h-3 w-3" />
+                          <span className="truncate max-w-[120px]">{p.email}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Phone className="h-3 w-3" />
+                          <span>{p.phone}</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1 text-xs">
-                        <Phone className="h-3 w-3" />
-                        <span>{participant.phone}</span>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-semibold">
-                    {participant.amount} €
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        participant.status === "confirmed"
-                          ? "default"
-                          : "outline"
-                      }
-                    >
-                      {participant.status === "confirmed"
-                        ? "Confirmé"
-                        : "En attente"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="ghost" size="sm" className="h-8">
-                      <FileText className="h-4 w-4" />
-                      <span className="sr-only">Générer badge</span>
-                    </Button>
+                    </TableCell>
+                    <TableCell className="font-semibold">{p.amount} FCFA</TableCell>
+                    <TableCell>
+                      <Badge variant={p.status === "confirmed" ? "default" : "outline"}>
+                        {p.status === "confirmed" ? "Confirmé" : "En attente"}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-4">
+                    Aucun participant trouvé.
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </div>

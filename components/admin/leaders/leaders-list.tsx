@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -25,127 +25,30 @@ import { Edit, MoreHorizontal, Search, Trash, UserPlus } from "lucide-react";
 import { usePagination } from "@/hooks/use-pagination";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { AddLeaderDialog } from "./add-leader-dialog";
+import axiosInstance from "@/components/request/reques";
 
-const allLeaders = [
-  {
-    id: 1,
-    name: "Jean Dupont",
-    city: "Paris",
-    country: "France",
-    center: "Centre Évangélique",
-    coLeader: "Marie Lambert",
-    participants: 45,
-  },
-  {
-    id: 2,
-    name: "Marie Koné",
-    city: "Abidjan",
-    country: "Côte d'Ivoire",
-    center: "Église de la Grâce",
-    coLeader: null,
-    participants: 38,
-  },
-  {
-    id: 3,
-    name: "Paul Mbarga",
-    city: "Douala",
-    country: "Cameroun",
-    center: "Centre de la Foi",
-    coLeader: "Samuel Etoo",
-    participants: 27,
-  },
-  {
-    id: 4,
-    name: "Sophie Martin",
-    city: "Lyon",
-    country: "France",
-    center: "Assemblée du Réveil",
-    coLeader: null,
-    participants: 31,
-  },
-  {
-    id: 5,
-    name: "Thomas Diallo",
-    city: "Dakar",
-    country: "Sénégal",
-    center: "Église de la Paix",
-    coLeader: "Fatou Sow",
-    participants: 22,
-  },
-  {
-    id: 6,
-    name: "Fatou Sow",
-    city: "Bamako",
-    country: "Mali",
-    center: "Centre de l'Espoir",
-    coLeader: "Ibrahim Keita",
-    participants: 35,
-  },
-  {
-    id: 7,
-    name: "Emmanuel Koffi",
-    city: "Lomé",
-    country: "Togo",
-    center: "Église de la Victoire",
-    coLeader: null,
-    participants: 28,
-  },
-  {
-    id: 8,
-    name: "Grace Mensah",
-    city: "Accra",
-    country: "Ghana",
-    center: "Centre de la Paix",
-    coLeader: "Kofi Asante",
-    participants: 42,
-  },
-  {
-    id: 9,
-    name: "David Ouattara",
-    city: "Bouaké",
-    country: "Côte d'Ivoire",
-    center: "Assemblée de Dieu",
-    coLeader: null,
-    participants: 33,
-  },
-  {
-    id: 10,
-    name: "Sarah Traoré",
-    city: "Ouagadougou",
-    country: "Burkina Faso",
-    center: "Église du Réveil",
-    coLeader: "Moussa Sawadogo",
-    participants: 29,
-  },
-  {
-    id: 11,
-    name: "Pierre Kamara",
-    city: "Conakry",
-    country: "Guinée",
-    center: "Centre de la Foi",
-    coLeader: null,
-    participants: 26,
-  },
-  {
-    id: 12,
-    name: "Aminata Diallo",
-    city: "Niamey",
-    country: "Niger",
-    center: "Église de l'Espoir",
-    coLeader: "Harouna Maiga",
-    participants: 31,
-  },
-];
+type leader = {
+  id: number;
+  username: string;
+  email: string;
+  telephone: string;
+  pays: string;
+  ville: string;
+  delegation: string;
+  participants: number;
+};
+
 
 export function LeadersList() {
   const [searchTerm, setSearchTerm] = useState("");
-
+  const [error, setError] = useState<string | null>(null)
+  const [allLeaders, setAllLeaders] = useState<leader[]>([]);
   const filteredLeaders = allLeaders.filter(
     (leader) =>
-      leader.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      leader.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      leader.country.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      leader.center.toLowerCase().includes(searchTerm.toLowerCase())
+      leader.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      leader.ville.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      leader.pays.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      leader.delegation.toLowerCase().includes(searchTerm.toLowerCase()) 
   );
 
   const {
@@ -163,6 +66,24 @@ export function LeadersList() {
     data: filteredLeaders,
     initialPageSize: 10,
   });
+    
+  useEffect(() => {
+      fetchleaders();
+  }, [])
+
+  const fetchleaders = async () => {
+    try {
+      setError(null)
+      const response = await axiosInstance.get("/dirigeant/all")
+      const ledearData = await response.data
+      const leaders: leader[] = Array.isArray(ledearData) ? ledearData : ledearData.leaders || []
+      setAllLeaders(leaders)
+    } catch (err) {
+      console.error("Erreur lors du chargement des données :", err)
+      setError(err instanceof Error ? err.message : "Une erreur inconnue est survenue")
+    }
+  }
+
 
   return (
     <Card>
@@ -187,11 +108,12 @@ export function LeadersList() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nom</TableHead>
+                <TableHead>Nom complet</TableHead>
+                <TableHead>Adresse email</TableHead>
+                <TableHead>Téléphone</TableHead>
                 <TableHead>Ville</TableHead>
                 <TableHead>Pays</TableHead>
                 <TableHead>Centre</TableHead>
-                <TableHead>Co-dirigeant</TableHead>
                 <TableHead className="text-right">Participants</TableHead>
                 <TableHead className="w-[80px]"></TableHead>
               </TableRow>
@@ -199,20 +121,12 @@ export function LeadersList() {
             <TableBody>
               {paginatedData.map((leader) => (
                 <TableRow key={leader.id}>
-                  <TableCell className="font-medium">{leader.name}</TableCell>
-                  <TableCell>{leader.city}</TableCell>
-                  <TableCell>{leader.country}</TableCell>
-                  <TableCell>{leader.center}</TableCell>
-                  <TableCell>
-                    {leader.coLeader ? (
-                      leader.coLeader
-                    ) : (
-                      <Button variant="ghost" size="sm" className="h-8 text-xs">
-                        <UserPlus className="h-3.5 w-3.5 mr-1" />
-                        Ajouter
-                      </Button>
-                    )}
-                  </TableCell>
+                  <TableCell className="font-medium">{leader.username}</TableCell>
+                  <TableCell className="font-medium">{leader.email}</TableCell>
+                  <TableCell className="font-medium">{leader.telephone}</TableCell>
+                  <TableCell>{leader.ville}</TableCell>
+                  <TableCell>{leader.pays}</TableCell>
+                  <TableCell>{leader.delegation}</TableCell>
                   <TableCell className="text-right">
                     <Badge variant="outline">{leader.participants}</Badge>
                   </TableCell>

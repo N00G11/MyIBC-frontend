@@ -1,3 +1,5 @@
+"use client"
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -9,40 +11,42 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
 import { Edit, MoreHorizontal, Trash } from "lucide-react"
+import { useEffect, useState } from "react"
+import axiosInstance from "@/components/request/reques"
 
-const campTypes = [
-  {
-    id: 1,
-    name: "Camp des Agneaux",
-    ageRange: "7-12 ans",
-    amount: 50,
-    currency: "EUR",
-    participants: 320,
-    status: "active",
-  },
-  {
-    id: 2,
-    name: "Camp des Jeunes",
-    ageRange: "13-25 ans",
-    amount: 75,
-    currency: "EUR",
-    participants: 580,
-    status: "active",
-  },
-  {
-    id: 3,
-    name: "Camp des Leaders",
-    ageRange: "26+ ans",
-    amount: 100,
-    currency: "EUR",
-    participants: 348,
-    status: "active",
-  },
-]
+
+type campTypes = {
+  id: number
+  type: string
+  trancheAge: string
+  prix: number
+  devise: string
+  participants: number
+}
+
 
 export function CampTypesList() {
+
+  const [error, setError] = useState<string | null>(null)
+  const [campTypes, setCampTypes] = useState<campTypes[]>([])
+  useEffect(() => {
+    fetchCamps();
+  }, [])
+
+   const fetchCamps = async () => {
+    try {
+      setError(null)
+      const response = await axiosInstance.get("/camp/all")
+      const campData = await response.data
+      const camps: campTypes[] = Array.isArray(campData) ? campData : campData.jobs || []
+      setCampTypes(camps)
+    } catch (err) {
+      console.error("Erreur lors du chargement des données :", err)
+      setError(err instanceof Error ? err.message : "Une erreur inconnue est survenue")
+    }
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -57,24 +61,18 @@ export function CampTypesList() {
                 <TableHead>Tranche d'âge</TableHead>
                 <TableHead>Montant</TableHead>
                 <TableHead className="text-right">Participants</TableHead>
-                <TableHead>Statut</TableHead>
                 <TableHead className="w-[80px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {campTypes.map((camp) => (
                 <TableRow key={camp.id}>
-                  <TableCell className="font-medium">{camp.name}</TableCell>
-                  <TableCell>{camp.ageRange}</TableCell>
+                  <TableCell className="font-medium">{camp.type}</TableCell>
+                  <TableCell>{camp.trancheAge}</TableCell>
                   <TableCell>
-                    {camp.amount} {camp.currency}
+                    {camp.prix} FCFA
                   </TableCell>
                   <TableCell className="text-right">{camp.participants}</TableCell>
-                  <TableCell>
-                    <Badge variant={camp.status === "active" ? "default" : "outline"}>
-                      {camp.status === "active" ? "Actif" : "Inactif"}
-                    </Badge>
-                  </TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

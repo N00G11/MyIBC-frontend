@@ -8,21 +8,41 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import axiosInstance from "./request/reques"
+import { Alert, AlertDescription } from "./ui/alert"
+import { AlertCircle } from "lucide-react"
 
 export function RegisterForm() {
   const router = useRouter()
   const [email, setEmail] = useState("")
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("")
-  const [userType, setUserType] = useState("admin")
+  const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = (e: React.FormEvent) => {
+   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    // Dans un cas réel, nous ferions une authentification ici
-    if (userType === "admin") {
-      router.push("/admin/dashboard")
-    } else {
-      router.push("/participant/dashboard")
+    setError(null)
+    try {
+      const response = await axiosInstance.post('/auth/register', {
+        username,
+        password,
+        email,
+      })
+
+      const {token} = response.data;
+      localStorage.setItem('token', token);
+      localStorage.setItem('email', email);
+      router.push(`/inscription/camp?email=${email}`);
+    } catch (err: any) {
+      if (err.response && err.response.data) {
+        setError(
+          typeof err.response.data === "string"
+            ? err.response.data
+            : JSON.stringify(err.response.data)
+        )
+      } else {
+        setError(err instanceof Error ? err.message : "Une erreur est survenue lors de l'inscription")
+      }
     }
   }
 
@@ -30,13 +50,19 @@ export function RegisterForm() {
     <Card className="w-full shadow-lg border-t-4 border-t-[#D4AF37]">
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl text-center text-[#001F5B]">
-          Connexion
+          S'inscrire
         </CardTitle>
         <CardDescription className="text-center">
-          Connectez-vous à votre compte MyIBC
+          Enregistrer vous sur notre platforme MyIBC
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {error && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+          )}
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -81,7 +107,7 @@ export function RegisterForm() {
         </form>
       </CardContent>
       <CardFooter className="flex flex-row justify-center">
-        <Button variant="link" className="text-[#001F5B]">
+        <Button variant="link" onClick={() => router.push("/")} className="text-[#001F5B]">
           Se connecter
         </Button>
       </CardFooter>

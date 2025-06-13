@@ -27,7 +27,6 @@ export function ParticipantHeader() {
           <CmciLogo className="h-12 w-auto" />
           <div>
             <h1 className="text-xl font-bold text-[#001F5B]">Mon Espace Participant</h1>
-            <p className="text-sm text-gray-600">Bienvenue Pierre Dubois</p>
           </div>
         </div>
 
