@@ -2,6 +2,7 @@ import { LeaderStats } from "@/components/leader/leader-stats";
 import { LeaderCampDistribution } from "@/components/leader/leader-camp-distribution";
 import { LeaderParticipantsList } from "@/components/leader/leader-participants-list";
 import { LeaderActions } from "@/components/leader/leader-actions";
+import { Suspense } from "react";
 
 export default function LeaderDashboard() {
   return (
@@ -11,16 +12,24 @@ export default function LeaderDashboard() {
           Mon tableau de bord
         </h1>
       </div>
-
-      <LeaderStats />
-
+        <Suspense fallback={<div>Chargement...</div>}>
+           <LeaderActions />
+        </Suspense>  
+        
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <LeaderCampDistribution />
-          <LeaderParticipantsList />
+          <Suspense fallback={<div>Chargement...</div>}>
+
+            <LeaderCampDistribution />
+            <LeaderParticipantsList />
+         
+          </Suspense>  
+
         </div>
         <div>
-          <LeaderActions />
+        <Suspense fallback={<div>Chargement...</div>}>
+           <LeaderActions />
+        </Suspense>  
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { ParticipantForm } from "@/components/admin/participants/participant-form"
 import { CmciLogo } from "@/components/cmci-logo"
+import { Suspense } from "react"
 
 
 export default function Incription() {
@@ -9,7 +10,9 @@ export default function Incription() {
         <div className="flex justify-center mb-8">
           <CmciLogo className="h-24 w-auto" />
         </div>
-       <ParticipantForm/>
+        <Suspense fallback={<div>Chargement...</div>}>
+            <ParticipantForm/>
+        </Suspense>
       </div>
     </div>
   )
