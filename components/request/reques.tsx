@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "https://my-ibc-backend.up.railway.app/api", // ✅ dynamique
+  baseURL: "https://myibc-backend-production.up.railway.app/api", // ✅ dynamique
   withCredentials: true,
 });
 
