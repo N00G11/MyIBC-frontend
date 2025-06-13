@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: 'https://localhost:8443/api',
-  withCredentials: true,  // pour envoyer les cookies au serveur
+  baseURL: process.env.NEXT_PUBLIC_API_URL, // ✅ dynamique
+  withCredentials: true,
 });
 
 // Ajouter automatiquement le token à chaque requête
