@@ -39,9 +39,6 @@ export function ParticipantHeader() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Mon compte</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Modifier mon profil</DropdownMenuItem>
-            <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} className="text-red-600">
               <LogOut className="h-4 w-4 mr-2" />
               Déconnexion
