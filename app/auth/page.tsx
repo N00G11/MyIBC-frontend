@@ -1,5 +1,6 @@
+import { LoginForm } from "@/components/login-form"
 import { CmciLogo } from "@/components/cmci-logo"
-import { RegisterForm } from "@/components/register-form"
+
 
 export default function Home() {
   return (
@@ -8,7 +9,7 @@ export default function Home() {
         <div className="flex justify-center mb-8">
           <CmciLogo className="h-24 w-auto" />
         </div>
-        <RegisterForm/>
+        <LoginForm />
       </div>
     </div>
   )
