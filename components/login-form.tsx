@@ -108,7 +108,7 @@ export function LoginForm() {
       <CardFooter className="flex flex-row justify-between">
         <Button
           variant="link"
-          onClick={() => router.push("/auth")}
+          onClick={() => router.push("/")}
           className="text-[#001F5B]"
         >
           S'enregistre

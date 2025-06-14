@@ -107,7 +107,7 @@ export function RegisterForm() {
         </form>
       </CardContent>
       <CardFooter className="flex flex-row justify-center">
-        <Button variant="link" onClick={() => router.push("/")} className="text-[#001F5B]">
+        <Button variant="link" onClick={() => router.push("/auth")} className="text-[#001F5B]">
           Se connecter
         </Button>
       </CardFooter>
