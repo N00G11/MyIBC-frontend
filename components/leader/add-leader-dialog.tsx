@@ -96,6 +96,12 @@ export function AddLeaderDialog() {
     if (!telephone.trim()) {
       newErrors.phone = "Le téléphone est obligatoire";
     }
+    
+    const phoneRegex = /^\+\d{9,15}$/
+    if (!phoneRegex.test(telephone)) {
+      newErrors.phone = "Le numéro de téléphone doit commencer par '+' et contenir entre 9 et 15 chiffres.";
+    }
+    
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
