@@ -132,12 +132,6 @@ export function ParticipantForm() {
       return
     }
 
-    const phoneRegex = /^\+\d{9,15}$/
-    if (!phoneRegex.test(telephone)) {
-      setError("Le numéro de téléphone doit commencer par '+' et contenir entre 9 et 15 chiffres.")
-      return
-    }
-
     const calculatedAge = calculateAge(dateNaissance)
     setAge(calculatedAge)
 
