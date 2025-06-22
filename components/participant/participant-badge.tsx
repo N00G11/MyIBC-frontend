@@ -126,19 +126,6 @@ export function ParticipantBadge() {
               </div>
             </div>
 
-            {/* Photo */}
-            <div className="w-24 h-24 rounded-full mx-auto mb-3 border-2 border-[#001F5B] overflow-hidden bg-gray-100 flex items-center justify-center">
-              {p?.photoUrl ? (
-                <img
-                  src={p.photoUrl}
-                  alt="Photo participant"
-                  className="object-cover w-full h-full"
-                />
-              ) : (
-                <span className="text-gray-500 text-sm">Photo</span>
-              )}
-            </div>
-
             {/* Infos */}
             <div className="text-center mb-3 space-y-1">
               <h3 className="text-lg font-extrabold text-[#001F5B]">
