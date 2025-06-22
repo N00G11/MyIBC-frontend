@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import axiosInstance from "../request/reques";
 import QRCode from "react-qr-code";
-import html2canvas from "html2canvas";
+import html2canvas from "html2canvas"; // npm install html2canvas
 
 type Inscription = {
   id: number;
@@ -21,7 +21,6 @@ type Inscription = {
     pays: string;
     ville: string;
     delegation: string;
-    photoUrl?: string;
   };
   camp: {
     type: string;
@@ -53,7 +52,9 @@ export function ParticipantBadge() {
       setInscription(response.data);
     } catch (err) {
       console.error("Erreur lors du chargement des données :", err);
-      setError(err instanceof Error ? err.message : "Une erreur inconnue est survenue");
+      setError(
+        err instanceof Error ? err.message : "Une erreur inconnue est survenue"
+      );
     }
   };
 
@@ -73,14 +74,9 @@ export function ParticipantBadge() {
     const dataUrl = canvas.toDataURL("image/png");
 
     const printWindow = window.open("", "_blank")!;
-    printWindow.document.write(`
-      <html>
-        <head><title>Impression du badge</title></head>
-        <body style="margin:0;padding:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#f3f4f6;">
-          <img src="${dataUrl}" style="max-width:90vw;max-height:90vh;"/>
-        </body>
-      </html>
-    `);
+    printWindow.document.write(
+      `<html><head><title>Impression du badge</title></head><body style="margin:0;padding:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#f3f4f6;"><img src="${dataUrl}" style="max-width:100%;max-height:100%;"/></body></html>`
+    );
     printWindow.document.close();
     printWindow.onload = function () {
       printWindow.focus();
@@ -106,45 +102,37 @@ export function ParticipantBadge() {
         )}
         <div className="flex justify-center mb-4">
           <div
-            className="w-[340px] h-auto bg-white border-2 border-[#001F5B] rounded-xl shadow-xl p-4 flex flex-col"
             ref={badgeRef}
+            className="w-[500px] h-[280px] bg-white border-2 border-[#001F5B] rounded-xl shadow-xl flex overflow-hidden"
             style={{
               fontFamily: "Inter, sans-serif",
-              minHeight: 480,
-              background: "linear-gradient(160deg, #fff 80%, #e6e7ee 100%)",
+              background: "linear-gradient(90deg, #fff 70%, #e6e7ee 100%)",
             }}
           >
-            {/* En-tête */}
-            <div className="flex justify-between items-start mb-3">
-              <div className="w-10 h-10 bg-[#001F5B] rounded-full flex items-center justify-center">
-                <span className="text-[#D4AF37] text-base font-extrabold tracking-tight">
-                  CMCI
-                </span>
-              </div>
-              <div className="text-right">
+            {/* Colonne gauche - Infos */}
+            <div className="flex-1 p-4 flex flex-col justify-between">
+              <div className="flex justify-between items-center mb-1">
+                <div className="w-10 h-10 bg-[#001F5B] rounded-full flex items-center justify-center">
+                  <span className="text-[#D4AF37] text-base font-extrabold">CMCI</span>
+                </div>
                 <p className="text-sm text-[#001F5B] font-bold">2025</p>
               </div>
-            </div>
 
-            {/* Infos */}
-            <div className="text-center mb-3 space-y-1">
-              <h3 className="text-lg font-extrabold text-[#001F5B]">
-                {p?.username || "Participant"}
-              </h3>
-              <p className="text-sm text-gray-700">{p?.email}</p>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-gray-700 mt-2 text-left px-2">
-                <div><strong>Sexe :</strong> {p?.sexe?.toUpperCase()}</div>
-                <div><strong>Né(e) :</strong> {p?.dateNaissance ? new Date(p.dateNaissance).toLocaleDateString() : ""}</div>
-                <div><strong>Pays :</strong> {p?.pays}</div>
-                <div><strong>Ville :</strong> {p?.ville}</div>
-                <div><strong>Délégation :</strong> {p?.delegation}</div>
-                <div><strong>Téléphone :</strong> {p?.telephone}</div>
+              <div className="text-left">
+                <h3 className="text-lg font-extrabold text-[#001F5B]">{p?.username || "Participant"}</h3>
+                <p className="text-xs text-gray-700">{p?.email}</p>
+                <div className="mt-1 space-y-0.5 text-xs text-gray-600">
+                  <p><strong>Sexe :</strong> {p?.sexe?.toUpperCase()}</p>
+                  <p><strong>Naissance :</strong> {p?.dateNaissance ? new Date(p.dateNaissance).toLocaleDateString() : ""}</p>
+                  <p><strong>Pays :</strong> {p?.pays}</p>
+                  <p><strong>Ville :</strong> {p?.ville}</p>
+                  <p><strong>Délégation :</strong> {p?.delegation}</p>
+                  <p><strong>Téléphone :</strong> {p?.telephone}</p>
+                </div>
               </div>
-              {inscription?.dirigeantAssigne?.username && (
-                <p className="text-xs text-gray-600 mt-1 italic">Dirigeant: {inscription.dirigeantAssigne.username}</p>
-              )}
-              <div className="mt-2">
-                <span className="bg-[#D4AF37] text-white px-2 py-1 rounded-full text-xs font-semibold mr-2">
+
+              <div className="flex gap-2 mt-2">
+                <span className="bg-[#D4AF37] text-white px-2 py-1 rounded-full text-xs font-semibold">
                   {inscription?.camp?.type?.toUpperCase() || "CAMP"}
                 </span>
                 <span className="bg-[#001F5B] text-white px-2 py-1 rounded-full text-xs font-semibold">
@@ -153,8 +141,8 @@ export function ParticipantBadge() {
               </div>
             </div>
 
-            {/* QR Code & ID */}
-            <div className="mt-auto flex flex-col items-center">
+            {/* Colonne droite - QR code */}
+            <div className="w-40 p-3 flex flex-col items-center justify-center border-l border-gray-300 bg-[#f9fafb]">
               <QRCode
                 value={JSON.stringify({
                   id: inscription?.id,
@@ -162,16 +150,15 @@ export function ParticipantBadge() {
                   email: p?.email,
                   camp: inscription?.camp?.type,
                 })}
-                size={56}
+                size={80}
                 bgColor="#ffffff"
                 fgColor="#001F5B"
               />
-              <p className="text-xs text-center text-gray-500 mt-1 font-mono">{badgeId}</p>
+              <p className="text-xs text-center text-gray-500 mt-2 font-mono">{badgeId}</p>
             </div>
           </div>
         </div>
 
-        {/* Actions */}
         <div className="space-y-2">
           <Button variant="outline" className="w-full" onClick={handleDownload}>
             <Download className="h-4 w-4 mr-2" />
@@ -185,8 +172,7 @@ export function ParticipantBadge() {
 
         <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
           <p className="text-xs text-blue-800">
-            <strong>Important :</strong> Présentez ce badge lors de votre arrivée au camp. Il contient toutes vos
-            informations d'identification.
+            <strong>Important :</strong> Présentez ce badge lors de votre arrivée au camp. Il contient toutes vos informations d'identification.
           </p>
         </div>
       </CardContent>
