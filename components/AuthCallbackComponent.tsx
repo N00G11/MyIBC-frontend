@@ -38,7 +38,7 @@ export default function AuthCallbackComponent() {
         }
       } catch (error) {
         console.error("Erreur OAuth2:", error);
-        alert("Échec de l'authentification Google");
+        alert(error);
         router.push("/");
       } finally {
         setLoading(false);
