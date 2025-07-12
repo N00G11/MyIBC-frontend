@@ -9,12 +9,7 @@ export default function HomePage() {
   const router = useRouter();
 
   const handleGoogleLogin = async () => {
-    const result = await signIn("google", { redirect: false });
-    if (result?.error) {
-      alert("Erreur lors de la connexion Google");
-    } else if (result?.url) {
-      window.location.href = result.url;
-    }
+    router.push("https://myibc-backend-production.up.railway.app/oauth2/authorization/google");
   };
 
   return (
@@ -34,16 +29,13 @@ export default function HomePage() {
         <p className="mt-4 text-gray-500 italic text-sm max-w-2xl">
           *L’accès est réservé aux membres avec un compte Google.
         </p>
-        <a
-            href="https://myibc-backend-production.up.railway.app/oauth2/authorization/google"
-         >
            <Button
+              onClick={handleGoogleLogin}
               className="mt-12 inline-flex items-center gap-4 bg-white text-gray-900 px-8 py-4 rounded-lg shadow-md hover:bg-[#D4AF37] hover:text-white transition-colors duration-300 active:scale-95 max-w-xs"
            >
               <FcGoogle className="text-3xl" />
               Se connecter avec Google
            </Button>
-        </a>
       </section>
 
       <section className="hidden md:flex flex-1 items-center justify-center px-12 py-20">
