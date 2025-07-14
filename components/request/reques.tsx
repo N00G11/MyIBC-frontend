@@ -11,7 +11,7 @@ axiosInstance.interceptors.request.use(
     const token = localStorage.getItem('token');
 
     // Liste des endpoints publics (à adapter à ton cas)
-    const publicEndpoints = ['/auth/login', '/auth/register', 'auth/success', '/public'];
+    const publicEndpoints = ['/auth/login', '/auth/register', '/public'];
 
     // Vérifie que config.url existe avant d'utiliser startsWith
     const url = config.url || '';
