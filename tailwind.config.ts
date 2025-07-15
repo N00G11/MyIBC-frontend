@@ -59,8 +59,14 @@ const config: Config = {
   				accent: 'hsl(var(--sidebar-accent))',
   				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
   				border: 'hsl(var(--sidebar-border))',
-  				ring: 'hsl(var(--sidebar-ring))'
-  			}
+				ring: 'hsl(var(--sidebar-ring))'
+			},
+			myibc: {
+				blue: "#001F5B",
+				gold: "#D4AF37",
+				light: "#F9FAFB",
+				graytext: "#64748B",
+			},
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
