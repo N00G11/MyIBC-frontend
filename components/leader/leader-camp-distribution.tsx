@@ -31,8 +31,9 @@ export function LeaderCampDistribution() {
   const [campData, setCampData] = useState<CampStat[]>([]);
   const [totalParticipants, setTotalParticipants] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
+  const [totalTransport, setTotalTransport] = useState(0);
 
-  const email = useSearchParams().get("email"); // ou passe-le en props
+  const email = useSearchParams().get("email");
 
   useEffect(() => {
     const fetchCampStats = async () => {
@@ -79,6 +80,21 @@ export function LeaderCampDistribution() {
     fetchCampStats();
   }, [email]);
 
+  useEffect(() => {
+    const fetchTransport = async () => {
+      if (!email) return;
+
+      try {
+        const res = await axiosInstance.get<number>(`/statistique/dirigeant/totalAmountforTransport/${email}`);
+        setTotalTransport(res.data);
+      } catch (error) {
+        console.error("Erreur lors du chargement du total transport :", error);
+      }
+    };
+
+    fetchTransport();
+  }, [email]);
+
   return (
     <Card>
       <CardHeader>
@@ -109,7 +125,7 @@ export function LeaderCampDistribution() {
                       {camp.participants} participants
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      {camp.amount} FCFA
+                      {camp.amount.toLocaleString("fr-FR")} FCFA
                     </div>
                   </div>
                 </div>
@@ -126,7 +142,7 @@ export function LeaderCampDistribution() {
         </div>
 
         <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-          <div className="grid grid-cols-2 gap-4 text-center">
+          <div className="grid grid-cols-3 gap-4 text-center">
             <div>
               <div className="text-2xl font-bold text-[#001F5B]">
                 {totalParticipants}
@@ -137,9 +153,19 @@ export function LeaderCampDistribution() {
             </div>
             <div>
               <div className="text-2xl font-bold text-[#D4AF37]">
-                {totalAmount} FCFA
+                {totalAmount.toLocaleString("fr-FR")} FCFA
               </div>
-              <div className="text-sm text-muted-foreground">Montant total</div>
+              <div className="text-sm text-muted-foreground">
+                Montant total
+              </div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-[#4C51BF]">
+                {totalTransport.toLocaleString("fr-FR")} FCFA
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Transport total
+              </div>
             </div>
           </div>
         </div>
