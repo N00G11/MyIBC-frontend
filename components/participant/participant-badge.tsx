@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import axiosInstance from "../request/reques";
 import QRCode from "react-qr-code";
-import html2canvas from "html2canvas"; // à installer: npm install html2canvas
+import html2canvas from "html2canvas";
 
 type Inscription = {
   id: number;
@@ -21,6 +21,7 @@ type Inscription = {
     pays: string;
     ville: string;
     delegation: string;
+    payTransport: boolean;
   };
   camp: {
     type: string;
@@ -85,7 +86,6 @@ export function ParticipantBadge() {
     };
   };
 
-  // Formatage des infos
   const p = inscription?.participant;
   const badgeId = inscription ? "#" + String(inscription.id).padStart(6, "0") : "";
 
@@ -108,11 +108,10 @@ export function ParticipantBadge() {
             style={{
               fontFamily: "Inter, sans-serif",
               minHeight: 420,
-              background:
-                "linear-gradient(160deg, #fff 80%, #e6e7ee 100%)",
+              background: "linear-gradient(160deg, #fff 80%, #e6e7ee 100%)",
             }}
           >
-            {/* Header avec logo CMCI */}
+            {/* Header */}
             <div className="flex justify-between items-start mb-3">
               <div className="w-10 h-10 bg-[#001F5B] rounded-full flex items-center justify-center">
                 <span className="text-[#D4AF37] text-base font-extrabold tracking-tight">
@@ -129,9 +128,7 @@ export function ParticipantBadge() {
               <h3 className="text-lg font-extrabold text-[#001F5B] mb-1">
                 {p ? p.username : "Participant"}
               </h3>
-              <p className="text-xs text-gray-700 mb-1">
-                {p?.email}
-              </p>
+              <p className="text-xs text-gray-700 mb-1">{p?.email}</p>
               <div className="flex flex-wrap justify-center gap-2 text-xs text-gray-600 mb-2">
                 <span>{p?.sexe?.toUpperCase()}</span>
                 <span>
@@ -143,6 +140,11 @@ export function ParticipantBadge() {
                 <span>{p?.ville}</span>
                 <span>{p?.delegation}</span>
                 <span>{p?.telephone}</span>
+                {p?.payTransport !== undefined && (
+                  <span className={`font-semibold ${p.payTransport ? "text-green-600" : "text-red-600"}`}>
+                    Transport pris en charge : {p.payTransport ? "Oui" : "Non"}
+                  </span>
+                )}
               </div>
               <div className="mb-2">
                 <span className="bg-[#D4AF37] text-white px-2 py-1 rounded-full text-xs font-semibold">
@@ -156,7 +158,7 @@ export function ParticipantBadge() {
               </div>
             </div>
 
-            {/* QR Code & ID */}
+            {/* QR Code */}
             <div className="mt-auto flex flex-col items-center">
               <QRCode
                 value={JSON.stringify({
@@ -168,7 +170,6 @@ export function ParticipantBadge() {
                 size={56}
                 bgColor="#ffffff"
                 fgColor="#001F5B"
-               // includeMargin={false}
               />
               <p className="text-xs text-center text-gray-500 mt-1 font-mono">
                 {badgeId}
