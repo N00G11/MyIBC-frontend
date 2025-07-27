@@ -1,61 +1,81 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { UserCircle, Mail, Phone, MapPin, MessageCircle } from "lucide-react"
-import { useEffect, useState } from "react"
-import { useSearchParams } from "next/navigation"
-import axiosInstance from "../request/reques"
-
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { UserCircle, Mail, Phone, MapPin } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import axiosInstance from "../request/reques";
 
 type Inscription = {
-  id: number
-  date: string
-  participant: {
-    username: string
-    email: string
-    telephone: string
-    sexe: string
-    dateNaissance: string | number
-    pays: string
-    ville: string
-    delegation: string
-  }
+  id: number;
+  date: string;
+  nom: string;
+  prenom: string;
+  sexe: string;
+  telephone: string;
+  dateNaissance: string | number;
+  pays: string;
+  ville: string;
+  delegation: string;
   camp: {
-    type: string
-  }
+    type: string;
+  };
   dirigeantAssigne: {
-    username: string
-    email: string
-    telephone: string
-    delegation: string
-    ville: string
-    pays: string
-  }
-}
-
+    username: string;
+    email: string;
+    telephone: string;
+    delegation: string;
+    ville: string;
+    pays: string;
+  };
+};
 
 export function LeaderContact() {
-
-  const [inscription, setInscription] = useState<Inscription | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const email = useSearchParams().get("email")
+  const [inscription, setInscription] = useState<Inscription | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const id = useSearchParams().get("id");
 
   useEffect(() => {
-    fetchInscription()
-  }, [])
+    if (!id) {
+      setError("ID manquant dans l'URL.");
+      return;
+    }
+    fetchInscription();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   const fetchInscription = async () => {
     try {
-      setError(null)
-      const response = await axiosInstance.get<Inscription>(`/inscription/email/${email}`)
-      setInscription(response.data)
+      setError(null);
+      const response = await axiosInstance.get<Inscription>(`/inscription/${id}`);
+      setInscription(response.data);
     } catch (err) {
-      console.error("Erreur lors du chargement des données :", err)
-      setError(err instanceof Error ? err.message : "Une erreur inconnue est survenue")
+      console.error("Erreur lors du chargement des données :", err);
+      setError(err instanceof Error ? err.message : "Une erreur inconnue est survenue");
     }
+  };
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent>
+          <p className="text-red-600 font-semibold">{error}</p>
+        </CardContent>
+      </Card>
+    );
   }
 
+  if (!inscription) {
+    return (
+      <Card>
+        <CardContent>
+          <p className="text-gray-600">Chargement des informations du dirigeant...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const leader = inscription.dirigeantAssigne;
 
   return (
     <Card>
@@ -73,7 +93,7 @@ export function LeaderContact() {
               <UserCircle className="h-8 w-8 text-[#D4AF37]" />
             </div>
             <div>
-              <h3 className="font-semibold text-[#001F5B]">{inscription?.dirigeantAssigne?.username}</h3>
+              <h3 className="font-semibold text-[#001F5B]">{leader.username}</h3>
               <p className="text-sm text-gray-600">Dirigeant</p>
             </div>
           </div>
@@ -84,7 +104,7 @@ export function LeaderContact() {
               <Mail className="h-4 w-4 text-[#D4AF37]" />
               <div>
                 <p className="text-sm font-medium">Email</p>
-                <p className="text-sm text-gray-600">{inscription?.dirigeantAssigne?.email}</p>
+                <p className="text-sm text-gray-600">{leader.email}</p>
               </div>
             </div>
 
@@ -92,7 +112,7 @@ export function LeaderContact() {
               <Phone className="h-4 w-4 text-[#D4AF37]" />
               <div>
                 <p className="text-sm font-medium">Téléphone</p>
-                <p className="text-sm text-gray-600">{inscription?.dirigeantAssigne?.telephone}</p>
+                <p className="text-sm text-gray-600">{leader.telephone}</p>
               </div>
             </div>
 
@@ -100,13 +120,13 @@ export function LeaderContact() {
               <MapPin className="h-4 w-4 text-[#D4AF37]" />
               <div>
                 <p className="text-sm font-medium">Centre</p>
-                <p className="text-sm text-gray-600">{inscription?.dirigeantAssigne?.delegation}</p>
-                <p className="text-xs text-gray-500">{inscription?.dirigeantAssigne?.ville}, {inscription?.dirigeantAssigne?.pays}</p>
+                <p className="text-sm text-gray-600">{leader.delegation}</p>
+                <p className="text-xs text-gray-500">{leader.ville}, {leader.pays}</p>
               </div>
             </div>
           </div>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

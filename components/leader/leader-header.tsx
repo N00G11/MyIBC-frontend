@@ -27,7 +27,6 @@ export function LeaderHeader() {
           <CmciLogo className="h-12 w-auto" />
           <div>
             <h1 className="text-xl  font-bold text-[#001F5B]">
-              Espace Dirigeant
             </h1>
           </div>
         </div>

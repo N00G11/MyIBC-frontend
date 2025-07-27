@@ -61,7 +61,6 @@ export function CampTypesList() {
                 <TableHead>Tranche d'âge</TableHead>
                 <TableHead>Montant</TableHead>
                 <TableHead className="text-right">Participants</TableHead>
-                <TableHead className="w-[80px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -73,28 +72,6 @@ export function CampTypesList() {
                     {camp.prix} FCFA
                   </TableCell>
                   <TableCell className="text-right">{camp.participants}</TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>
-                          <Edit className="h-4 w-4 mr-2" />
-                          Modifier
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600">
-                          <Trash className="h-4 w-4 mr-2" />
-                          Supprimer
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

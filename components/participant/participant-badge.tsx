@@ -12,17 +12,15 @@ import html2canvas from "html2canvas";
 type Inscription = {
   id: number;
   date: string;
-  participant: {
-    username: string;
-    email: string;
-    telephone: string;
-    sexe: string;
-    dateNaissance: string | number;
-    pays: string;
-    ville: string;
-    delegation: string;
-    payTransport: boolean;
-  };
+  nom: string;
+  prenom: string;
+  sexe: string;
+  telephone: string;
+  dateNaissance: string | number;
+  pays: string;
+  ville: string;
+  delegation: string;
+  badge: boolean;
   camp: {
     type: string;
   };
@@ -34,166 +32,354 @@ type Inscription = {
 export function ParticipantBadge() {
   const [inscription, setInscription] = useState<Inscription | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const email = useSearchParams().get("email");
+  const code = useSearchParams().get("id");
   const badgeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetchInscription();
-    // eslint-disable-next-line
-  }, []);
+    if (code) {
+      fetchInscription();
+    } else {
+      setError("Id manquant dans l'URL.");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [code]);
 
   const fetchInscription = async () => {
     try {
       setError(null);
-      if (!email) {
-        setError("Email manquant dans l'URL.");
-        return;
-      }
-      const response = await axiosInstance.get<Inscription>(`/inscription/email/${email}`);
+      const response = await axiosInstance.get<Inscription>(`/inscription/code/${code}`);
       setInscription(response.data);
     } catch (err) {
       console.error("Erreur lors du chargement des données :", err);
-      setError(
-        err instanceof Error ? err.message : "Une erreur inconnue est survenue"
-      );
+      setError(err instanceof Error ? err.message : "Une erreur inconnue est survenue");
     }
   };
 
   const handleDownload = async () => {
     if (!badgeRef.current) return;
-    const canvas = await html2canvas(badgeRef.current, { backgroundColor: null });
-    const url = canvas.toDataURL("image/png");
+    
+    // Configuration optimisée pour le téléchargement
+    const canvas = await html2canvas(badgeRef.current, {
+      backgroundColor: '#ffffff',
+      scale: 3, // Haute résolution
+      useCORS: true,
+      allowTaint: true,
+      width: 340, // Largeur fixe
+      height: 500, // Hauteur fixe
+      scrollX: 0,
+      scrollY: 0,
+    });
+    
+    const url = canvas.toDataURL("image/png", 1.0);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `badge-${inscription?.participant.username || "participant"}.png`;
+    a.download = `badge-${inscription?.nom.toLowerCase() || "participant"}-${inscription?.prenom.toLowerCase() || ""}.png`;
     a.click();
   };
 
   const handlePrint = async () => {
     if (!badgeRef.current) return;
-    const canvas = await html2canvas(badgeRef.current, { backgroundColor: null });
-    const dataUrl = canvas.toDataURL("image/png");
+    
+    // Configuration optimisée pour l'impression
+    const canvas = await html2canvas(badgeRef.current, {
+      backgroundColor: '#ffffff',
+      scale: 4, // Très haute résolution pour impression
+      useCORS: true,
+      allowTaint: true,
+      width: 340,
+      height: 500,
+      scrollX: 0,
+      scrollY: 0,
+    });
+    
+    const dataUrl = canvas.toDataURL("image/png", 1.0);
 
     const printWindow = window.open("", "_blank")!;
-    printWindow.document.write(
-      `<html><head><title>Impression du badge</title></head><body style="margin:0;padding:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#f3f4f6;"><img src="${dataUrl}" style="max-width:90vw;max-height:90vh;"/></body></html>`
-    );
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Badge - ${inscription?.nom} ${inscription?.prenom}</title>
+          <style>
+            @media print {
+              body { 
+                margin: 0; 
+                padding: 20px; 
+                display: flex; 
+                justify-content: center; 
+                align-items: center; 
+                min-height: 100vh; 
+                background: white !important;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+              }
+              img { 
+                max-width: 340px !important;
+                max-height: 500px !important;
+                width: 340px !important;
+                height: auto !important;
+                page-break-inside: avoid;
+              }
+            }
+            body { 
+              margin: 0; 
+              padding: 20px; 
+              display: flex; 
+              justify-content: center; 
+              align-items: center; 
+              min-height: 100vh; 
+              background: #f8fafc; 
+            }
+          </style>
+        </head>
+        <body>
+          <img src="${dataUrl}" alt="Badge participant" />
+        </body>
+      </html>
+    `);
     printWindow.document.close();
-    printWindow.onload = function () {
+    printWindow.onload = () => {
       printWindow.focus();
       printWindow.print();
       setTimeout(() => printWindow.close(), 1000);
     };
   };
 
-  const p = inscription?.participant;
-  const badgeId = inscription ? "#" + String(inscription.id).padStart(6, "0") : "";
+  if (error) {
+    return <div className="p-4 text-red-600 font-semibold">{error}</div>;
+  }
+
+  if (!inscription) {
+    return <div className="p-4 text-gray-600">Chargement du badge...</div>;
+  }
+
+  // Affichage conditionnel du badge
+  if (!inscription.badge) {
+    return (
+      <Card className="max-w-md mx-auto shadow-lg">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-[#001F5B]">
+            <QrCode className="h-6 w-6" />
+            Mon badge participant
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="p-8 text-center text-lg text-[#001F5B] font-semibold">
+            Le badge n'est pas encore disponible pour ce participant.
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const badgeId = "#" + String(inscription.id).padStart(6, "0");
+  const fullName = `${inscription.nom} ${inscription.prenom}`;
+  const birthDate = inscription.dateNaissance
+    ? new Date(inscription.dateNaissance).toLocaleDateString("fr-FR")
+    : "";
 
   return (
-    <Card>
+    <Card className="max-w-md mx-auto shadow-lg">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <QrCode className="h-5 w-5" />
-          Mon badge
+        <CardTitle className="flex items-center gap-2 text-[#001F5B]">
+          <QrCode className="h-6 w-6" />
+          Mon badge participant
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {error && (
-          <div className="mb-4 p-2 rounded bg-red-100 text-red-700 text-sm">{error}</div>
-        )}
-        <div className="flex justify-center mb-4">
+        {/* Badge optimisé pour impression et téléchargement */}
+        <div
+          ref={badgeRef}
+          className="bg-white mx-auto flex flex-col items-center justify-center"
+          style={{
+            width: '340px',
+            height: '500px',
+            fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+            position: 'relative',
+            overflow: 'hidden',
+            border: '2px solid #e2e8f0',
+            borderRadius: '16px',
+            boxSizing: 'border-box',
+            padding: 0,
+            margin: 0,
+          }}
+        >
+          {/* Arrière-plan avec dégradé */}
           <div
-            className="w-72 h-auto bg-white border-2 border-[#001F5B] rounded-xl shadow-xl p-4 flex flex-col"
-            ref={badgeRef}
+            className="absolute inset-0"
             style={{
-              fontFamily: "Inter, sans-serif",
-              minHeight: 420,
-              background: "linear-gradient(160deg, #fff 80%, #e6e7ee 100%)",
+              background: 'linear-gradient(135deg, #001F5B 0%, #003875 50%, #001F5B 100%)',
+              zIndex: 0,
+            }}
+          />
+
+          {/* Motif décoratif */}
+          <div
+            className="absolute inset-0 opacity-10"
+            style={{
+              background: `radial-gradient(circle at 20% 80%, #D4AF37 0%, transparent 50%),
+                          radial-gradient(circle at 80% 20%, #D4AF37 0%, transparent 50%),
+                          radial-gradient(circle at 40% 40%, #ffffff 0%, transparent 30%)`,
+              zIndex: 1,
+            }}
+          />
+
+          {/* Contenu du badge */}
+          <div
+            className="relative z-10 h-full w-full flex flex-col justify-between"
+            style={{
+              padding: '24px 18px 18px 18px',
+              boxSizing: 'border-box',
+              height: '500px',
+              width: '340px',
             }}
           >
-            {/* Header */}
-            <div className="flex justify-between items-start mb-3">
-              <div className="w-10 h-10 bg-[#001F5B] rounded-full flex items-center justify-center">
-                <span className="text-[#D4AF37] text-base font-extrabold tracking-tight">
-                  CMCI
-                </span>
+            {/* En-tête */}
+            <div className="flex justify-between items-center mb-2" style={{ minHeight: 64 }}>
+              <div
+                className="flex items-center justify-center shadow-lg"
+                style={{
+                  width: '64px',
+                  height: '64px',
+                  background: 'linear-gradient(145deg, #D4AF37, #B8941F)',
+                  borderRadius: '50%',
+                  border: '3px solid rgba(255, 255, 255, 0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <span className="text-white font-black text-lg tracking-wider">CMCI</span>
               </div>
-              <div className="text-right">
-                <p className="text-sm text-[#001F5B] font-bold">2025</p>
+              <div className="text-right" style={{ minWidth: 60 }}>
+                <div className="text-white font-bold text-2xl tracking-wider">2025</div>
+                <div className="text-white/80 text-xs font-medium">EDITION</div>
               </div>
             </div>
 
-            {/* Informations */}
-            <div className="text-center mb-3">
-              <h3 className="text-lg font-extrabold text-[#001F5B] mb-1">
-                {p ? p.username : "Participant"}
-              </h3>
-              <p className="text-xs text-gray-700 mb-1">{p?.email}</p>
-              <div className="flex flex-wrap justify-center gap-2 text-xs text-gray-600 mb-2">
-                <span>{p?.sexe?.toUpperCase()}</span>
-                <span>
-                  {p?.dateNaissance
-                    ? new Date(p.dateNaissance).toLocaleDateString()
-                    : ""}
-                </span>
-                <span>{p?.pays}</span>
-                <span>{p?.ville}</span>
-                <span>{p?.delegation}</span>
-                <span>{p?.telephone}</span>
-                {p?.payTransport !== undefined && (
-                  <span className={`font-semibold ${p.payTransport ? "text-green-600" : "text-red-600"}`}>
-                    Transport pris en charge : {p.payTransport ? "Oui" : "Non"}
+            {/* Zone principale */}
+            <div
+              className="flex-1 mx-0 rounded-xl px-3 py-4 flex flex-col justify-center items-center"
+              style={{
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                boxShadow: '0 8px 32px rgba(0, 31, 91, 0.15)',
+                width: '100%',
+                minHeight: '260px',
+              }}
+            >
+              {/* Informations participant */}
+              <div className="text-center mb-2 w-full">
+                <h1
+                  className="font-black text-[#001F5B] mb-1 tracking-tight leading-tight"
+                  style={{ fontSize: '20px', lineHeight: '1.1', wordBreak: 'break-word' }}
+                >
+                  {fullName.toUpperCase()}
+                </h1>
+
+                <div className="space-y-1 mb-2">
+                  <div className="text-[#001F5B] font-semibold text-sm">{inscription.telephone}</div>
+                  <div className="text-gray-600 text-xs font-medium">
+                    {inscription.delegation} • {inscription.ville}
+                  </div>
+                  <div className="text-gray-600 text-xs font-medium">{inscription.pays}</div>
+                </div>
+
+                {/* Tags d'information */}
+                <div className="flex flex-wrap justify-center gap-2 mb-2">
+                  <span
+                    className="px-3 py-1 rounded-full text-xs font-bold text-white"
+                    style={{ background: 'linear-gradient(135deg, #D4AF37, #B8941F)' }}
+                  >
+                    {inscription.sexe.toUpperCase()}
                   </span>
-                )}
+                  <span
+                    className="px-3 py-1 rounded-full text-xs font-bold text-white"
+                    style={{ background: 'linear-gradient(135deg, #001F5B, #003875)' }}
+                  >
+                    {birthDate}
+                  </span>
+                  <span
+                    className="px-3 py-1 rounded-full text-xs font-bold"
+                    style={{
+                      background: 'linear-gradient(135deg, #D4AF37, #B8941F)',
+                      color: 'white',
+                    }}
+                  >
+                    {inscription.camp.type.toUpperCase()}
+                  </span>
+                </div>
               </div>
-              <div className="mb-2">
-                <span className="bg-[#D4AF37] text-white px-2 py-1 rounded-full text-xs font-semibold">
-                  {inscription?.camp?.type?.toUpperCase() || "CAMP"}
-                </span>
-              </div>
-              <div>
-                <span className="bg-[#001F5B] text-white px-2 py-1 rounded-full text-xs font-semibold">
-                  PARTICIPANT
-                </span>
+
+              {/* QR Code centré */}
+              <div className="flex flex-col items-center justify-center w-full">
+                <div
+                  className="p-3 rounded-xl mb-1"
+                  style={{
+                    background: 'white',
+                    border: '2px solid #001F5B',
+                    boxShadow: '0 4px 15px rgba(0, 31, 91, 0.1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <QRCode
+                    value={JSON.stringify({
+                      id: inscription.id,
+                      nom: inscription.nom,
+                      prenom: inscription.prenom,
+                      telephone: inscription.telephone,
+                      camp: inscription.camp.type,
+                      verification: badgeId,
+                    })}
+                    size={90}
+                    bgColor="#ffffff"
+                    fgColor="#001F5B"
+                    level="M"
+                  />
+                </div>
+                <div
+                  className="font-mono font-bold tracking-wider"
+                  style={{
+                    color: '#001F5B',
+                    fontSize: '11px',
+                    letterSpacing: '1px',
+                    marginTop: '2px',
+                  }}
+                >
+                  {badgeId}
+                </div>
               </div>
             </div>
 
-            {/* QR Code */}
-            <div className="mt-auto flex flex-col items-center">
-              <QRCode
-                value={JSON.stringify({
-                  id: inscription?.id,
-                  username: p?.username,
-                  email: p?.email,
-                  camp: inscription?.camp?.type,
-                })}
-                size={56}
-                bgColor="#ffffff"
-                fgColor="#001F5B"
-              />
-              <p className="text-xs text-center text-gray-500 mt-1 font-mono">
-                {badgeId}
-              </p>
+            {/* Pied de page */}
+            <div className="mt-2 text-center w-full">
+              <div className="text-white/90 text-xs font-medium">
+                BADGE OFFICIEL • CONGRÈS MONDIAL 2025
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="space-y-2">
-          <Button variant="outline" className="w-full" onClick={handleDownload}>
-            <Download className="h-4 w-4 mr-2" />
-            Télécharger mon badge
-          </Button>
-          <Button variant="outline" className="w-full" onClick={handlePrint}>
-            <Printer className="h-4 w-4 mr-2" />
-            Imprimer mon badge
-          </Button>
-        </div>
-
-        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-          <p className="text-xs text-blue-800">
-            <strong>Important :</strong> Présentez ce badge lors de votre arrivée au camp. Il contient toutes vos
-            informations d'identification.
-          </p>
+          {/* Actions */}
+          <div className="mt-4 space-y-2 w-full flex flex-col items-center">
+            <Button
+              variant="outline"
+              className="w-5/6 flex items-center justify-center gap-2 h-10 text-[#001F5B] border-[#001F5B] hover:bg-[#001F5B] hover:text-white transition-colors"
+              onClick={handleDownload}
+            >
+              <Download className="h-5 w-5" />
+              Télécharger en .png
+            </Button>
+            <Button
+              variant="outline"
+              className="w-5/6 flex items-center justify-center gap-2 h-10 text-[#D4AF37] border-[#D4AF37] hover:bg-[#D4AF37] hover:text-white transition-colors"
+              onClick={handlePrint}
+            >
+              <Printer className="h-5 w-5" />
+              Imprimer
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

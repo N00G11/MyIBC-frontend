@@ -13,15 +13,15 @@ type campType = {
   description: string;
   trancheAge: string;
   prix: number;
-  devise: string;
   participants: number;
 };
 
 export function CampSelect() {
   const [campTypes, setCampTypes] = useState<campType[]>([]);
-  const email = useSearchParams().get("email");
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const code = searchParams.get("id");
 
   useEffect(() => {
     fetchCamps();
@@ -47,7 +47,7 @@ export function CampSelect() {
           <Card
             key={camp.id}
             onClick={() =>
-              router.push(`/inscription?id=${camp.id}&email=${email}`)
+              router.push(`/inscription?id=${camp.id}&id2=${code}`)
             }
             className="cursor-pointer transition-shadow duration-200 border border-gray-200 hover:shadow-lg bg-white rounded-lg"
           >
@@ -68,11 +68,11 @@ export function CampSelect() {
               </p>
 
               <div className="p-4 bg-myibc-light rounded-md flex flex-col items-center text-center">
-                <DollarSign className="h-5 w-5 text-myibc-gold mb-2" />
+                FCFA
                 <div className="text-xl font-bold text-myibc-blue">
-                  {camp.prix} {camp.devise}
+                  {camp.prix}
                 </div>
-                <p className="text-xs text-myibc-graytext mt-1">Tarif du camp</p>
+                <p className="text-xs text-myibc-graytext mt-1">Frais de participation au camp</p>
               </div>
             </CardContent>
           </Card>

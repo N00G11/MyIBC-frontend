@@ -1,33 +1,27 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card, CardContent, CardHeader, CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Edit, MoreHorizontal, Search, Trash, UserPlus } from "lucide-react";
+import { Edit, MoreHorizontal, Search, Trash } from "lucide-react";
 import { usePagination } from "@/hooks/use-pagination";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { AddLeaderDialog } from "./add-leader-dialog";
 import axiosInstance from "@/components/request/reques";
+import { EditLeaderDialog } from "./EditLeaderDialog";
 
-type leader = {
+type Leader = {
   id: number;
   username: string;
   email: string;
@@ -38,52 +32,53 @@ type leader = {
   participants: number;
 };
 
-
 export function LeadersList() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [error, setError] = useState<string | null>(null)
-  const [allLeaders, setAllLeaders] = useState<leader[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [allLeaders, setAllLeaders] = useState<Leader[]>([]);
+
   const filteredLeaders = allLeaders.filter(
     (leader) =>
       leader.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
       leader.ville.toLowerCase().includes(searchTerm.toLowerCase()) ||
       leader.pays.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      leader.delegation.toLowerCase().includes(searchTerm.toLowerCase()) 
+      leader.delegation.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const {
-    currentPage,
-    pageSize,
-    totalPages,
-    totalItems,
-    paginatedData,
-    goToPage,
-    setPageSize,
-    canGoNext,
-    canGoPrevious,
-    getPageNumbers,
+    currentPage, pageSize, totalPages, totalItems, paginatedData,
+    goToPage, setPageSize, canGoNext, canGoPrevious, getPageNumbers,
   } = usePagination({
     data: filteredLeaders,
     initialPageSize: 10,
   });
-    
+
   useEffect(() => {
-      fetchleaders();
-  }, [])
+    fetchLeaders();
+  }, []);
 
-  const fetchleaders = async () => {
+  const fetchLeaders = async () => {
     try {
-      setError(null)
-      const response = await axiosInstance.get("/dirigeant/all")
-      const ledearData = await response.data
-      const leaders: leader[] = Array.isArray(ledearData) ? ledearData : ledearData.leaders || []
-      setAllLeaders(leaders)
+      setError(null);
+      const response = await axiosInstance.get("/dirigeant/all");
+      const leaderData = await response.data;
+      const leaders: Leader[] = Array.isArray(leaderData) ? leaderData : leaderData.leaders || [];
+      setAllLeaders(leaders);
     } catch (err) {
-      console.error("Erreur lors du chargement des données :", err)
-      setError(err instanceof Error ? err.message : "Une erreur inconnue est survenue")
+      console.error("Erreur lors du chargement des données :", err);
+      setError(err instanceof Error ? err.message : "Une erreur inconnue est survenue");
     }
-  }
+  };
 
+  const handleDelete = async (id: number) => {
+    if (!confirm("Voulez-vous vraiment supprimer ce dirigeant ?")) return;
+    try {
+      await axiosInstance.delete(`/dirigeant/delete/${id}`);
+      fetchLeaders();
+    } catch (err) {
+      console.error("Erreur lors de la suppression :", err);
+    }
+  };
 
   return (
     <Card>
@@ -122,8 +117,8 @@ export function LeadersList() {
               {paginatedData.map((leader) => (
                 <TableRow key={leader.id}>
                   <TableCell className="font-medium">{leader.username}</TableCell>
-                  <TableCell className="font-medium">{leader.email}</TableCell>
-                  <TableCell className="font-medium">{leader.telephone}</TableCell>
+                  <TableCell>{leader.email}</TableCell>
+                  <TableCell>{leader.telephone}</TableCell>
                   <TableCell>{leader.ville}</TableCell>
                   <TableCell>{leader.pays}</TableCell>
                   <TableCell>{leader.delegation}</TableCell>
@@ -133,25 +128,21 @@ export function LeadersList() {
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0"
-                        >
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                           <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Menu</span>
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>
-                          <Edit className="h-4 w-4 mr-2" />
-                          Modifier
+                        <DropdownMenuItem asChild>
+                          <EditLeaderDialog leader={leader} onSuccess={fetchLeaders} />
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600">
-                          <Trash className="h-4 w-4 mr-2" />
-                          Supprimer
+                        <DropdownMenuItem
+                          className="text-red-600"
+                          onClick={() => handleDelete(leader.id)}
+                        >
+                          <Trash className="h-4 w-4 mr-2" /> Supprimer
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

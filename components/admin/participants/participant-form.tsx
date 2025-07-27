@@ -1,170 +1,77 @@
 "use client";
 
-import { SetStateAction, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import axiosInstance from "@/components/request/reques";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PhoneInput } from "@/components/ui/phone-input";
+import { DateInput } from "@/components/ui/date-input";
+import { NameInput } from "@/components/ui/name-input";
+import { useParticipantForm } from "@/hooks/use-participant-form";
 import {
   UserPlus,
   MapPin,
-  Phone,
-  Calendar,
-  User,
-  Mail,
   Globe,
   Building2,
-  Truck,
   AlertCircle,
+  Loader2,
+  CheckCircle,
+  Users,
+  Calendar,
+  Phone,
+  User,
 } from "lucide-react";
-
-type Participant = {
-  id: number;
-  username: string;
-  email: string;
-};
-
-type camp = {
-  trancheAge: string;
-};
-
-const countriesData: Record<string, { villes: Record<string, string[]> }> = {
-  Cameroun: {
-    villes: {
-      Yaoundé: ["Délégation du Centre", "Délégation Nkolbisson", "Délégation Mvog-Ada"],
-      Douala: ["Délégation Bonaberi", "Délégation Akwa", "Délégation Deïdo"],
-      Bafoussam: ["Délégation Bapi", "Délégation Tamdja", "Délégation Kamkop"],
-      Garoua: ["Délégation Plateau", "Délégation Poumpoumré", "Délégation Ngaoundéré"],
-      Maroua: ["Délégation Domayo", "Délégation Kongola", "Délégation Hardé"],
-    },
-  },
-  France: {
-    villes: {
-      Paris: ["Délégation Nord", "Délégation Sud", "Délégation Centre"],
-      Lyon: ["Croix-Rousse", "Part-Dieu", "Gerland"],
-      Marseille: ["Castellane", "Noailles", "La Joliette"],
-      Toulouse: ["Compans", "Mirail", "Saint-Cyprien"],
-    },
-  },
-};
-
-function calculateAge(dateString: string): number {
-  const today = new Date();
-  const birthDate = new Date(dateString);
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const m = today.getMonth() - birthDate.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
-  return age;
-}
-
-const TRANSPORT_PRICE = 10000;
+import { Input } from "@/components/ui/input";
+import { calculateAge } from "@/lib/participant-utils";
+import { error } from "console";
+import { SetStateAction } from "react";
 
 export function ParticipantForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const campId = searchParams.get("id");
-  const email = searchParams.get("email");
+  const code = searchParams.get("id2");
 
-  const [participant, setParticipant] = useState<Participant | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  const [sexe, setSexe] = useState("Masculin");
-  const [telephone, setTelephone] = useState("");
-  const [dateNaissance, setDateNaissance] = useState("");
-  const [pays, setPays] = useState("");
-  const [ville, setVille] = useState("");
-  const [delegation, setDelegation] = useState("");
-
-  const [villes, setVilles] = useState<string[]>([]);
-  const [delegations, setDelegations] = useState<string[]>([]);
-
-  const [age, setAge] = useState<number | null>(null);
-  const [minAge, setMinAge] = useState<number | null>(null);
-  const [maxAge, setMaxAge] = useState<number | null>(null);
-
-  const [payTransport, setPayTransport] = useState(false);
-
-  useEffect(() => {
-    if (email) fetchUser();
-    if (campId) fetchTrancheAge(campId);
-  }, [email, campId]);
-
-  useEffect(() => {
-    if (pays && countriesData[pays]) {
-      setVilles(Object.keys(countriesData[pays].villes));
-      setVille("");
-      setDelegation("");
-      setDelegations([]);
-    }
-  }, [pays]);
-
-  useEffect(() => {
-    if (pays && ville && countriesData[pays]?.villes[ville]) {
-      setDelegations(countriesData[pays].villes[ville]);
-      setDelegation("");
-    }
-  }, [ville, pays]);
-
-  const fetchTrancheAge = async (id: string) => {
-    try {
-      setError(null);
-      const response = await axiosInstance.get<camp>(`/camp/${id}`);
-      const [min, max] = response.data.trancheAge.split("-").map(Number);
-      setMinAge(min);
-      setMaxAge(max);
-    } catch (err) {
-      console.error(err);
-      setError("Erreur lors du chargement des données du camp.");
-    }
-  };
-
-  const fetchUser = async () => {
-    try {
-      setError(null);
-      const response = await axiosInstance.get(`/participant/email/${email}`);
-      setParticipant(response.data);
-    } catch (err) {
-      console.error(err);
-      setError("Erreur lors du chargement de vos informations.");
-    }
-  };
+  const {
+    formData,
+    errors,
+    isSubmitting,
+    isLoading,
+    countries,
+    villes,
+    delegations,
+    campType,
+    minAge,
+    maxAge,
+    calculatedAge,
+    updateFormData,
+    submitForm,
+    isFormValid,
+  } = useParticipantForm({ campId: campId || undefined, code: code || undefined });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-
-    if (!telephone || !dateNaissance || !pays || !ville || !delegation) {
-      setError("Tous les champs sont obligatoires.");
-      return;
-    }
-
-    const calculatedAge = calculateAge(dateNaissance);
-    setAge(calculatedAge);
-
-    if (minAge && maxAge && (calculatedAge < minAge || calculatedAge > maxAge)) {
-      setError(`L'âge doit être entre ${minAge} et ${maxAge} ans.`);
-      return;
-    }
-
-    try {
-      await axiosInstance.post(`/inscription/add/${email}/${campId}`, {
-        sexe,
-        telephone,
-        dateNaissance,
-        ville,
-        pays,
-        delegation,
-        payTransport,
-      });
-      router.push(`/participant/dashboard?email=${email}`);
-    } catch (err) {
-      console.error(err);
-      setError("Une erreur est survenue lors de l'inscription.");
+    
+    const result = await submitForm();
+    if (result.success) {
+      router.push("/utilisateur/dashboard");
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-myibc-light flex items-center justify-center">
+        <Card className="w-96 shadow-lg">
+          <CardContent className="flex flex-col items-center justify-center p-8">
+            <Loader2 className="h-8 w-8 text-myibc-blue animate-spin mb-4" />
+            <p className="text-myibc-blue font-medium">Chargement des données...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-myibc-light p-4">
@@ -173,148 +80,227 @@ export function ParticipantForm() {
           <CardHeader className="bg-myibc-blue text-white rounded-t-md">
             <CardTitle className="flex items-center gap-2 text-lg font-semibold">
               <UserPlus className="h-5 w-5" />
-              Inscription au camp
+              Inscription au {campType || "camp"}
             </CardTitle>
             {minAge && maxAge && (
-              <p className="mt-1 text-sm text-white/80">
-                Tranche d'âge autorisée : {minAge} à {maxAge} ans
-              </p>
+              <div className="mt-2 flex items-center gap-2 text-sm text-white/90">
+                <Users className="h-4 w-4" />
+                <span>Tranche d'âge autorisée : {minAge} à {maxAge} ans</span>
+              </div>
             )}
           </CardHeader>
 
           <CardContent className="p-6 space-y-6">
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Nom et Email */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InputGroup label="Nom complet" icon={User} value={participant?.username || ""} disabled />
-                <InputGroup label="Email" icon={Mail} value={participant?.email || ""} disabled />
-              </div>
+              {/* Informations personnelles */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-myibc-blue border-b border-gray-200 pb-2">
+                  Informations personnelles
+                </h3>
+                
+                {/* Nom et Prénom */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <NameInput
+                    value={formData.nom}
+                    onChange={(value) => updateFormData({ nom: value })}
+                    label="Nom"
+                    placeholder="Votre nom de famille"
+                    error={errors.nom}
+                  />
+                  <NameInput
+                    value={formData.prenom}
+                    onChange={(value) => updateFormData({ prenom: value })}
+                    label="Prénom"
+                    placeholder="Votre prénom"
+                    error={errors.prenom}
+                  />
+                </div>
 
-              {/* Genre */}
-              <div>
-                <Label className="text-myibc-blue font-medium">Genre</Label>
-                <RadioGroup value={sexe} onValueChange={setSexe} className="flex gap-6 mt-2">
-                  <RadioGroupItem value="Masculin" id="male" />
-                  <Label htmlFor="male">Masculin</Label>
-                  <RadioGroupItem value="Feminin" id="female" />
-                  <Label htmlFor="female">Féminin</Label>
-                </RadioGroup>
-              </div>
+                {/* Genre */}
+                <div>
+                  <Label className="text-myibc-blue font-medium flex items-center gap-2 mb-3">
+                    <Users className="h-4 w-4" />
+                    Genre <span className="text-red-500">*</span>
+                  </Label>
+                  <RadioGroup 
+                    value={formData.sexe} 
+                    onValueChange={(value) => updateFormData({ sexe: value })} 
+                    className="flex gap-6"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="Masculin" id="male" />
+                      <Label htmlFor="male" className="cursor-pointer">Masculin</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="Feminin" id="female" />
+                      <Label htmlFor="female" className="cursor-pointer">Féminin</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
 
-              {/* Date naissance & Téléphone */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InputGroup
-                  label="Date de naissance"
-                  icon={Calendar}
-                  type="date"
-                  value={dateNaissance}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    setDateNaissance(e.target.value);
-                    setAge(calculateAge(e.target.value));
-                  }}
-                />
-                <InputGroup
-                  label="Téléphone"
-                  icon={Phone}
-                  placeholder="+237 6 XX XX XX"
-                  value={telephone}
-                  onChange={(e: { target: { value: SetStateAction<string>; }; }) => setTelephone(e.target.value)}
-                />
+                {/* Date de naissance */}
+                <div>
+                  <DateInput
+                    value={formData.dateNaissance}
+                    onChange={(value) => updateFormData({ dateNaissance: value })}
+                    minAge={minAge || undefined}
+                    maxAge={maxAge || undefined}
+                    error={errors.dateNaissance}
+                  />
+                </div>
+
+                {/* Numéro de téléphone - ligne séparée */}
+                <div>
+                  <PhoneInput
+                    value={formData.telephone}
+                    onChange={(value) => updateFormData({ telephone: value })}
+                    error={errors.telephone}
+                  />
+                </div>
               </div>
 
               {/* Localisation */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <SelectGroup
-                  label="Pays"
-                  value={pays}
-                  onChange={(e: { target: { value: SetStateAction<string>; }; }) => setPays(e.target.value)}
-                  options={Object.keys(countriesData)}
-                />
-                <SelectGroup
-                  label="Ville"
-                  value={ville}
-                  onChange={(e: { target: { value: SetStateAction<string>; }; }) => setVille(e.target.value)}
-                  options={villes}
-                  disabled={!pays}
-                />
-                <SelectGroup
-                  label="Délégation"
-                  value={delegation}
-                  onChange={(e: { target: { value: SetStateAction<string>; }; }) => setDelegation(e.target.value)}
-                  options={delegations}
-                  disabled={!ville}
-                />
-              </div>
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-myibc-blue border-b border-gray-200 pb-2 flex items-center gap-2">
+                  <MapPin className="h-5 w-5" />
+                  Localisation
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {/* Pays */}
+                  <div>
+                    <Label className="flex items-center gap-2 text-myibc-blue font-medium mb-2">
+                      <Globe className="h-4 w-4" />
+                      Pays <span className="text-red-500">*</span>
+                    </Label>
+                    <Select 
+                      value={formData.pays} 
+                      onValueChange={(value) => updateFormData({ pays: value })}
+                    >
+                      <SelectTrigger className={errors.pays ? "border-red-500" : ""}>
+                        <SelectValue placeholder="Sélectionner un pays" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {countries.map((country) => (
+                          <SelectItem key={country.id} value={country.name}>
+                            {country.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {errors.pays && (
+                      <div className="flex items-center gap-1 text-red-600 text-sm mt-1">
+                        <AlertCircle className="h-3 w-3" />
+                        {errors.pays}
+                      </div>
+                    )}
+                  </div>
 
-              {/* Transport */}
-              <div className="border border-yellow-100 rounded-md p-4 bg-yellow-50">
-                <Label className="flex items-center gap-2 text-myibc-gold font-semibold">
-                  <Truck className="h-4 w-4" />
-                  Transport (Facultatif)
-                </Label>
-                <p className="text-sm text-myibc-graytext mt-2">
-                  Frais : {TRANSPORT_PRICE.toLocaleString()} FCFA — depuis votre délégation.
-                </p>
-                <div className="mt-3 flex gap-2 items-center">
-                  <input
-                    type="checkbox"
-                    id="transport"
-                    checked={payTransport}
-                    onChange={(e) => setPayTransport(e.target.checked)}
-                    className="h-4 w-4"
-                  />
-                  <Label htmlFor="transport" className="text-myibc-blue font-medium cursor-pointer">
-                    Je souhaite bénéficier du transport
-                  </Label>
+                  {/* Ville */}
+                  <div>
+                    <Label className="flex items-center gap-2 text-myibc-blue font-medium mb-2">
+                      <Building2 className="h-4 w-4" />
+                      Ville <span className="text-red-500">*</span>
+                    </Label>
+                    <Select 
+                      value={formData.ville} 
+                      onValueChange={(value) => updateFormData({ ville: value })}
+                      disabled={!formData.pays}
+                    >
+                      <SelectTrigger className={errors.ville ? "border-red-500" : ""}>
+                        <SelectValue placeholder={formData.pays ? "Sélectionner une ville" : "Choisir un pays d'abord"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {villes.map((ville) => (
+                          <SelectItem key={ville.id} value={ville.name}>
+                            {ville.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {errors.ville && (
+                      <div className="flex items-center gap-1 text-red-600 text-sm mt-1">
+                        <AlertCircle className="h-3 w-3" />
+                        {errors.ville}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Délégation */}
+                  <div className="md:col-span-2 lg:col-span-1">
+                    <Label className="flex items-center gap-2 text-myibc-blue font-medium mb-2">
+                      <MapPin className="h-4 w-4" />
+                      Délégation <span className="text-red-500">*</span>
+                    </Label>
+                    <Select 
+                      value={formData.delegation} 
+                      onValueChange={(value) => updateFormData({ delegation: value })}
+                      disabled={!formData.ville}
+                    >
+                      <SelectTrigger className={errors.delegation ? "border-red-500" : ""}>
+                        <SelectValue placeholder={formData.ville ? "Sélectionner une délégation" : "Choisir une ville d'abord"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {delegations.map((delegation) => (
+                          <SelectItem key={delegation.id} value={delegation.name}>
+                            {delegation.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {errors.delegation && (
+                      <div className="flex items-center gap-1 text-red-600 text-sm mt-1">
+                        <AlertCircle className="h-3 w-3" />
+                        {errors.delegation}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-md flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4" />
-                  {error}
+              {/* Erreur générale */}
+              {errors.general && (
+                <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md flex items-center gap-2">
+                  <AlertCircle className="h-5 w-5 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium">Erreur d'inscription</p>
+                    <p className="text-sm">{errors.general}</p>
+                  </div>
                 </div>
               )}
 
-              <Button type="submit" className="w-full bg-myibc-blue hover:bg-[#001942] text-white">
-                <UserPlus className="h-4 w-4 mr-2" />
-                Confirmer l’inscription
+              {/* Message de validation */}
+              {isFormValid && !errors.general && (
+                <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded-md flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium">Formulaire valide</p>
+                    <p className="text-sm">Vous pouvez procéder à l'inscription</p>
+                  </div>
+                </div>
+              )}
+
+              <Button 
+                type="submit" 
+                className="w-full bg-myibc-blue hover:bg-[#001942] text-white py-3"
+                disabled={!isFormValid || isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Inscription en cours...
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Confirmer l'inscription
+                  </>
+                )}
               </Button>
             </form>
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
-}
-
-function InputGroup({ label, icon: Icon, ...props }: any) {
-  return (
-    <div>
-      <Label className="flex items-center gap-1 text-myibc-blue font-medium">
-        <Icon className="h-4 w-4" />
-        {label}
-      </Label>
-      <Input className="mt-1" {...props} />
-    </div>
-  );
-}
-
-function SelectGroup({ label, options, ...props }: any) {
-  return (
-    <div>
-      <Label className="text-myibc-blue font-medium">{label}</Label>
-      <select
-        className="w-full mt-1 border border-gray-300 rounded-md p-2"
-        {...props}
-      >
-        <option value="">-- Sélectionner --</option>
-        {options?.map((o: string) => (
-          <option key={o} value={o}>
-            {o}
-          </option>
-        ))}
-      </select>
     </div>
   );
 }

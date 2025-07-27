@@ -3,7 +3,14 @@
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-import { BarChart3, Users, Settings, FileText, Award, UserCircle } from "lucide-react"
+import { 
+  BarChart3, 
+  Users, 
+  CreditCard, 
+  UserCheck, 
+  MapPin, 
+  DollarSign 
+} from "lucide-react"
 
 const menuItems = [
   {
@@ -12,9 +19,9 @@ const menuItems = [
     icon: BarChart3,
   },
   {
-    title: "Dirigeants",
-    href: "/admin/leaders",
-    icon: UserCircle,
+    title: "Trésoriers",
+    href: "/admin/tresoriers",
+    icon: UserCheck,
   },
   {
     title: "Participants",
@@ -22,14 +29,9 @@ const menuItems = [
     icon: Users,
   },
   {
-    title: "Types de camps",
-    href: "/admin/camp-types",
-    icon: Award,
-  },
-  {
-    title: "Badges",
-    href: "/admin/badges",
-    icon: FileText,
+    title: "Localisations",
+    href: "/admin/localisations",
+    icon: MapPin,
   }
 ]
 

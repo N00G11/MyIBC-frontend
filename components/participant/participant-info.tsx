@@ -10,16 +10,14 @@ import { useSearchParams } from "next/navigation"
 type Inscription = {
   id: number
   date: string
-  participant: {
-    username: string
-    email: string
-    telephone: string
-    sexe: string
-    dateNaissance: string | number
-    pays: string
-    ville: string
-    delegation: string
-  }
+  nom: string
+  prenom: string
+  sexe: string
+  telephone: string
+  dateNaissance: string | number
+  pays: string
+  ville: string
+  delegation: string
   camp: {
     type: string
   }
@@ -31,16 +29,20 @@ type Inscription = {
 export function ParticipantInfo() {
   const [inscription, setInscription] = useState<Inscription | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const email = useSearchParams().get("email")
+  const code = useSearchParams().get("id")
 
   useEffect(() => {
-    fetchInscription()
-  }, [])
+    if (code) {
+      fetchInscription(code)
+    } else {
+      setError("Aucun identifiant fourni.")
+    }
+  }, [code])
 
-  const fetchInscription = async () => {
+  const fetchInscription = async (id: string) => {
     try {
       setError(null)
-      const response = await axiosInstance.get<Inscription>(`/inscription/email/${email}`)
+      const response = await axiosInstance.get<Inscription>(`/inscription/code/${id}`)
       setInscription(response.data)
     } catch (err) {
       console.error("Erreur lors du chargement des données :", err)
@@ -77,38 +79,35 @@ export function ParticipantInfo() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-gray-500">Nom complet</label>
-              <p className="text-lg font-semibold text-[#001F5B]">{inscription.participant.username}</p>
+              <label className="text-sm font-medium text-gray-500">Nom</label>
+              <p className="text-lg font-semibold text-[#001F5B]">{inscription.nom}</p>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-gray-500">Prénom</label>
+              <p className="text-lg font-semibold text-[#001F5B]">{inscription.prenom}</p>
             </div>
 
             <div>
               <label className="text-sm font-medium text-gray-500">Genre</label>
-              <p className="text-base">{inscription.participant.sexe}</p>
+              <p className="text-base">{inscription.sexe}</p>
             </div>
 
             <div>
               <label className="text-sm font-medium text-gray-500">Date de naissance</label>
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-gray-400" />
-                <p className="text-base">{formatDate(inscription.participant.dateNaissance)}</p>
+                <p className="text-base">{formatDate(inscription.dateNaissance)}</p>
               </div>
             </div>
           </div>
 
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-gray-500">Email</label>
-              <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-gray-400" />
-                <p className="text-base">{inscription.participant.email}</p>
-              </div>
-            </div>
-
-            <div>
               <label className="text-sm font-medium text-gray-500">Téléphone</label>
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-gray-400" />
-                <p className="text-base">{inscription.participant.telephone}</p>
+                <p className="text-base">{inscription.telephone}</p>
               </div>
             </div>
 
@@ -117,9 +116,14 @@ export function ParticipantInfo() {
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-gray-400" />
                 <p className="text-base">
-                  {inscription.participant.ville}, {inscription.participant.pays}
+                  {inscription.ville}, {inscription.pays}
                 </p>
               </div>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-gray-500">Délégation</label>
+              <p className="text-base font-medium">{inscription.delegation}</p>
             </div>
           </div>
         </div>
@@ -134,9 +138,10 @@ export function ParticipantInfo() {
                 </Badge>
               </div>
             </div>
+
             <div>
-              <label className="text-sm font-medium text-gray-500">Délégation</label>
-              <p className="text-base font-medium">{inscription.participant.delegation}</p>
+              <label className="text-sm font-medium text-gray-500">Dirigeant assigné</label>
+              <p className="text-base font-medium">{inscription.dirigeantAssigne?.username || "Non assigné"}</p>
             </div>
           </div>
         </div>

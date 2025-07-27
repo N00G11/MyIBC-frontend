@@ -8,13 +8,20 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { useEffect, useState } from "react";
-import axiosInstance from "../request/reques";
+import { use, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import axiosInstance from "../request/reques";
 
 interface Camp {
   id: number;
   type: string;
+  prix: number;
+}
+
+interface UserCampAmounts {
+  campAgneauxAmount: number;
+  campJeuneAmount: number;
+  campLeaderAmount: number;
 }
 
 interface CampStat {
@@ -31,43 +38,56 @@ export function LeaderCampDistribution() {
   const [campData, setCampData] = useState<CampStat[]>([]);
   const [totalParticipants, setTotalParticipants] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
-  const [totalTransport, setTotalTransport] = useState(0);
+  const [code, setCode] = useState<string | null>(null);
+  const [isClient, setIsClient] = useState(false);
 
-  const email = useSearchParams().get("email");
+  useEffect(() => {
+    // S'assurer que l'on est côté client avant d'utiliser localStorage
+    setIsClient(true);
+    const storedCode = typeof window !== "undefined" ? localStorage.getItem("code") : null;
+    if (storedCode) {
+      setCode(storedCode);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchCampStats = async () => {
-      if (!email) return;
+      if (!code) return;
 
       try {
-        const campsRes = await axiosInstance.get("/statistique/dirigeant/allCamp");
+        // Récupérer les camps avec leurs prix
+        const campsRes = await axiosInstance.get("/camp/all");
         const camps: Camp[] = campsRes.data;
+
+        // Récupérer les montants de l'utilisateur par camp
+        const userAmountsRes = await axiosInstance.get(`/statistique/utilisateur/code/${code}`);
+        const userAmounts: UserCampAmounts = userAmountsRes.data;
+
+        // Mapping des types de camps aux montants
+        const campAmountMapping: { [key: string]: number } = {
+          "Camp des Agneaux": userAmounts.campAgneauxAmount,
+          "Camp des Jeunes": userAmounts.campJeuneAmount,
+          "Camp des Leaders": userAmounts.campLeaderAmount,
+        };
 
         let totalP = 0;
         let totalA = 0;
 
-        const stats = await Promise.all(
-          camps.map(async (camp, index) => {
-            const [participantsRes, amountRes] = await Promise.all([
-              axiosInstance.get(`/statistique/dirigeant/numberParticipantsByCamp/${email}/${camp.id}`),
-              axiosInstance.get(`/statistique/dirigeant/totalAmountByCamp/${email}/${camp.id}`),
-            ]);
+        const stats: CampStat[] = camps.map((camp, index) => {
+          const amount = campAmountMapping[camp.type] || 0;
+          const participants = camp.prix > 0 ? Math.floor(amount / camp.prix) : 0;
 
-            const participants = participantsRes.data;
-            const amount = amountRes.data;
+          totalP += participants;
+          totalA += amount;
 
-            totalP += participants;
-            totalA += amount;
-
-            return {
-              id: camp.id,
-              name: camp.type,
-              participants,
-              amount,
-              color: colors[index % colors.length],
-            };
-          })
-        );
+          return {
+            id: camp.id,
+            name: camp.type,
+            participants,
+            amount,
+            color: colors[index % colors.length],
+          };
+        });
 
         setCampData(stats);
         setTotalParticipants(totalP);
@@ -78,27 +98,23 @@ export function LeaderCampDistribution() {
     };
 
     fetchCampStats();
-  }, [email]);
+  }, [code]);
 
-  useEffect(() => {
-    const fetchTransport = async () => {
-      if (!email) return;
-
-      try {
-        const res = await axiosInstance.get<number>(`/statistique/dirigeant/totalAmountforTransport/${email}`);
-        setTotalTransport(res.data);
-      } catch (error) {
-        console.error("Erreur lors du chargement du total transport :", error);
-      }
-    };
-
-    fetchTransport();
-  }, [email]);
+  if (!code) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Chargement...</CardTitle>
+          <CardDescription>Connexion au profil utilisateur</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Répartition de mes participants par camp</CardTitle>
+        <CardTitle>Répartition de mes payements</CardTitle>
         <CardDescription>
           Distribution et montants par type de camp
         </CardDescription>
@@ -142,7 +158,7 @@ export function LeaderCampDistribution() {
         </div>
 
         <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-          <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="grid grid-cols-2 gap-4 justify-center items-center text-center">
             <div>
               <div className="text-2xl font-bold text-[#001F5B]">
                 {totalParticipants}
@@ -157,14 +173,6 @@ export function LeaderCampDistribution() {
               </div>
               <div className="text-sm text-muted-foreground">
                 Montant total
-              </div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-[#4C51BF]">
-                {totalTransport.toLocaleString("fr-FR")} FCFA
-              </div>
-              <div className="text-sm text-muted-foreground">
-                Transport total
               </div>
             </div>
           </div>
