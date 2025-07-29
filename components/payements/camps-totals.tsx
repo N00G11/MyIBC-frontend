@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { usePaymentRefresh } from "@/hooks/use-payment-refresh";
 import axiosInstance from "@/components/request/reques";
-import { DollarSign, TrendingUp, Users, RefreshCw } from "lucide-react";
+import { TrendingUp, Users, RefreshCw } from "lucide-react";
 
 type Camp = {
   id: number;
@@ -189,7 +189,7 @@ export function CampsTotals() {
                 
                 <div className="flex-1 space-y-3">
                   <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <DollarSign className="h-4 w-4" />
+                    <span className="text-xs font-bold bg-gray-100 px-2 py-1 rounded">XAF</span>
                     <span>{camp.prix} FCFA/personne</span>
                   </div>
                 </div>
@@ -214,7 +214,7 @@ export function CampsTotals() {
 
           {campsTotals.length === 0 && (
             <div className="col-span-full text-center py-12 text-gray-500">
-              <DollarSign className="h-12 w-12 mx-auto mb-3 opacity-50" />
+              <span className="text-4xl font-bold text-gray-300 block mb-3">XAF</span>
               <p className="text-lg font-medium">Aucun camp trouvé</p>
               <p className="text-sm">Les données des camps seront affichées ici</p>
             </div>

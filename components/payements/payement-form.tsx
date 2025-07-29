@@ -12,11 +12,16 @@ import axiosInstance from "@/components/request/reques";
 interface Utilisateur {
   id: number;
   username: string;
-  email: string;
   code: string;
-  campAgneauxAmount: number;
-  campJeuneAmount: number;
-  campLeaderAmount: number;
+  // Support multiple possible field name variations
+  CampFondationAmount?: number;
+  campJeuneAmount?: number;
+  campLeaderAmount?: number;
+  // Alternative field names that might come from API
+  campFondationAmount?: number;
+  campJeunesAmount?: number;
+  campLeadersAmount?: number;
+  [key: string]: any; // Allow for other possible fields
 }
 
 interface PaymentSuccess {
@@ -58,6 +63,7 @@ export function PayementForm() {
     setLoading(true);
     try {
       const res = await axiosInstance.get(`/statistique/utilisateur/code/${code}`);
+      console.log('User data from API:', res.data); // Debug log to see actual structure
       setUtilisateur(res.data);
     } catch (err: any) {
       setUserNotFound(true);
@@ -66,7 +72,7 @@ export function PayementForm() {
     }
   };
 
-  const handlePay = async (camp: "Camp des Agneaux" | "Camp des Jeunes" | "Camp des Leaders") => {
+  const handlePay = async (camp: "Camp de la Fondation" | "Camp des Jeunes" | "Camp des Leaders") => {
     resetMessages();
     
     if (!tresorierCode) {
@@ -75,10 +81,11 @@ export function PayementForm() {
     
     if (!utilisateur) return;
     
+    // Try multiple possible field names for amounts
     const campAmounts = {
-      "Camp des Agneaux": utilisateur.campAgneauxAmount,
-      "Camp des Jeunes": utilisateur.campJeuneAmount,
-      "Camp des Leaders": utilisateur.campLeaderAmount
+      "Camp de la Fondation": utilisateur.CampFondationAmount || utilisateur.campFondationAmount || 0,
+      "Camp des Jeunes": utilisateur.campJeuneAmount || utilisateur.campJeunesAmount || 0,
+      "Camp des Leaders": utilisateur.campLeaderAmount || utilisateur.campLeadersAmount || 0
     };
     
     setPayingCamp(camp);
@@ -199,14 +206,10 @@ export function PayementForm() {
                     <span className="text-sm font-medium text-gray-600">Nom d'utilisateur</span>
                     <p className="text-lg font-semibold">{utilisateur.username}</p>
                   </div>
-                  <div>
-                    <span className="text-sm font-medium text-gray-600">Email</span>
-                    <p className="text-gray-800">{utilisateur.email}</p>
-                  </div>
                   <div className="md:col-span-2">
-                    <span className="text-sm font-medium text-gray-600">Code personnel</span>
+                    <span className="text-sm font-medium text-gray-600">Code personnel      </span>
                     <p className="font-mono text-blue-700 bg-blue-100 px-3 py-1 rounded-md inline-block">
-                      {utilisateur.code}
+                      {   utilisateur.code}
                     </p>
                   </div>
                 </div>
@@ -221,18 +224,18 @@ export function PayementForm() {
                 <div className="space-y-4">
                   {[
                     { 
-                      name: "Camp des Agneaux", 
-                      amount: utilisateur.campAgneauxAmount,
+                      name: "Camp de la Fondation", 
+                      amount: utilisateur.CampFondationAmount || utilisateur.campFondationAmount || 0,
                       color: "bg-green-100 text-green-800 border-green-200"
                     },
                     { 
                       name: "Camp des Jeunes", 
-                      amount: utilisateur.campJeuneAmount,
+                      amount: utilisateur.campJeuneAmount || utilisateur.campJeunesAmount || 0,
                       color: "bg-blue-100 text-blue-800 border-blue-200"
                     },
                     { 
                       name: "Camp des Leaders", 
-                      amount: utilisateur.campLeaderAmount,
+                      amount: utilisateur.campLeaderAmount || utilisateur.campLeadersAmount || 0,
                       color: "bg-purple-100 text-purple-800 border-purple-200"
                     }
                   ].map((camp) => (

@@ -273,7 +273,7 @@ export function LocalisationsList() {
           <div className="flex gap-4 mt-4">
             <Badge variant="secondary">{countries.length} pays</Badge>
             <Badge variant="secondary">{totalCities} villes</Badge>
-            <Badge variant="secondary">{totalDelegations} délégations</Badge>
+            <Badge variant="secondary">{totalDelegations} localité</Badge>
           </div>
         </CardHeader>
       </Card>
@@ -481,7 +481,7 @@ export function LocalisationsList() {
                       )}
                     </CardHeader>
                     <CardContent>
-                      {/* Ajout d'une délégation */}
+                      {/* Ajout d'une localitée */}
                       <div className="mb-3 p-2 bg-blue-50 rounded">
                         <div className="flex gap-2">
                           <Input
@@ -491,7 +491,7 @@ export function LocalisationsList() {
                               setNewDelegation(e.target.value)
                               setError(null)
                             }}
-                            placeholder="Ajouter une délégation"
+                            placeholder="Ajouter une localitée"
                             disabled={isLoading}
                             onKeyDown={(e) => e.key === 'Enter' && handleAddDelegation()}
                           />
@@ -505,7 +505,7 @@ export function LocalisationsList() {
                         </div>
                       </div>
 
-                      {/* Liste des délégations */}
+                      {/* Liste des localités */}
                       {city.delegations.length > 0 ? (
                         <ul className="space-y-2">
                           {city.delegations.map(delegation => (
@@ -551,7 +551,7 @@ export function LocalisationsList() {
                                         <AlertDialogHeader>
                                           <AlertDialogTitle className="flex items-center gap-2">
                                             <AlertTriangle className="h-5 w-5 text-red-600" />
-                                            Supprimer la délégation
+                                            Supprimer la localitée
                                           </AlertDialogTitle>
                                           <AlertDialogDescription>
                                             Êtes-vous sûr de vouloir supprimer "{delegation.name}" ?
@@ -575,7 +575,7 @@ export function LocalisationsList() {
                           ))}
                         </ul>
                       ) : (
-                        <p className="text-sm text-gray-500 italic">Aucune délégation</p>
+                        <p className="text-sm text-gray-500 italic">Aucune localitée</p>
                       )}
                     </CardContent>
                   </Card>

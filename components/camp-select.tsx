@@ -40,6 +40,20 @@ export function CampSelect() {
     }
   };
 
+  // Fonction pour formater l'affichage de la tranche d'âge
+  const formatAgeRange = (trancheAge: string): string => {
+    if (trancheAge.includes("et plus")) {
+      // Format "11 et plus" -> "11 ans et plus"
+      return trancheAge.replace(/(\d+)\s*et\s*plus/i, '$1 ans et plus');
+    } else if (trancheAge.includes("-")) {
+      // Format "18-25" - ajouter "ans" à la fin
+      return `${trancheAge} ans`;
+    } else {
+      // Format single age ou autre - ajouter "ans"
+      return `${trancheAge} ans`;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-myibc-light p-4">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
@@ -57,7 +71,7 @@ export function CampSelect() {
                   {camp.type}
                 </Badge>
                 <span className="text-sm text-myibc-graytext">
-                  {camp.trancheAge} ans
+                  {formatAgeRange(camp.trancheAge)}
                 </span>
               </div>
             </CardHeader>

@@ -22,8 +22,7 @@ import axiosInstance from '../request/reques';
 // Types pour les erreurs
 interface FormErrors {
   general?: string;
-  nom?: string;
-  prenom?: string;
+  nomComplet?: string;
   country?: string;
   phoneNumber?: string;
   password?: string;
@@ -49,8 +48,7 @@ export const ForgotPasswordForm = () => {
   const router = useRouter();
   const [step, setStep] = useState<1 | 2>(1);
   const [selectedCountry, setSelectedCountry] = useState<string>('');
-  const [nom, setNom] = useState<string>('');
-  const [prenom, setPrenom] = useState<string>('');
+  const [nomComplet, setNomComplet] = useState<string>('');
   const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [newPassword, setNewPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
@@ -71,6 +69,7 @@ export const ForgotPasswordForm = () => {
     { name: 'Canada', code: 'CA', dialCode: '+1' },
     { name: 'Cameroun', code: 'CM', dialCode: '+237' },
     { name: 'Côte d\'Ivoire', code: 'CI', dialCode: '+225' },
+    { name: 'Chine', code: 'CN', dialCode: '+86' },
     { name: 'Espagne', code: 'ES', dialCode: '+34' },
     { name: 'États-Unis', code: 'US', dialCode: '+1' },
     { name: 'France', code: 'FR', dialCode: '+33' },
@@ -124,18 +123,11 @@ export const ForgotPasswordForm = () => {
   const validateStep1 = (): boolean => {
     const newErrors: FormErrors = {};
 
-    // Validation nom
-    if (!nom.trim()) {
-      newErrors.nom = 'Le nom est requis';
-    } else if (nom.trim().length < 2) {
-      newErrors.nom = 'Le nom doit contenir au moins 2 caractères';
-    }
-
-    // Validation prénom
-    if (!prenom.trim()) {
-      newErrors.prenom = 'Le prénom est requis';
-    } else if (prenom.trim().length < 2) {
-      newErrors.prenom = 'Le prénom doit contenir au moins 2 caractères';
+    // Validation nom complet
+    if (!nomComplet.trim()) {
+      newErrors.nomComplet = 'Le nom complet est requis';
+    } else if (nomComplet.trim().length < 2) {
+      newErrors.nomComplet = 'Le nom complet doit contenir au moins 2 caractères';
     }
 
     // Validation pays
@@ -188,7 +180,7 @@ export const ForgotPasswordForm = () => {
       
       // Construire les données de vérification
       const verificationData = {
-        username: `${nom.trim()} ${prenom.trim()}`,
+        username: nomComplet.trim(),
         telephone: `${selectedCountryData!.dialCode} ${phoneNumber}`,
         pays: selectedCountryData!.name
       };
@@ -247,7 +239,7 @@ export const ForgotPasswordForm = () => {
       const selectedCountryData = getSelectedCountryData();
       
       const resetData = {
-        username: `${nom.trim()} ${prenom.trim()}`,
+        username: nomComplet.trim(),
         telephone: `${selectedCountryData!.dialCode} ${phoneNumber}`,
         pays: selectedCountryData!.name,
         password: newPassword
@@ -356,50 +348,27 @@ export const ForgotPasswordForm = () => {
       {/* Étape 1: Vérification d'identité */}
       {step === 1 && (
         <form onSubmit={handleVerifyIdentity} className="space-y-6">
-          {/* Nom et Prénom */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-myibc-blue mb-2">
-                <User className="w-4 h-4 inline mr-1" />
-                Nom
-              </label>
-              <input
-                type="text"
-                value={nom}
-                onChange={(e) => {
-                  setNom(e.target.value);
-                  if (errors.nom) setErrors(prev => ({ ...prev, nom: '' }));
-                }}
-                placeholder="Votre nom"
-                className={`w-full px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-myibc-blue focus:border-myibc-blue ${
-                  errors.nom ? 'border-red-300' : 'border-gray-300'
-                }`}
-              />
-              {errors.nom && (
-                <p className="mt-1 text-sm text-red-600">{errors.nom}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-myibc-blue mb-2">
-                Prénom
-              </label>
-              <input
-                type="text"
-                value={prenom}
-                onChange={(e) => {
-                  setPrenom(e.target.value);
-                  if (errors.prenom) setErrors(prev => ({ ...prev, prenom: '' }));
-                }}
-                placeholder="Votre prénom"
-                className={`w-full px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-myibc-blue focus:border-myibc-blue ${
-                  errors.prenom ? 'border-red-300' : 'border-gray-300'
-                }`}
-              />
-              {errors.prenom && (
-                <p className="mt-1 text-sm text-red-600">{errors.prenom}</p>
-              )}
-            </div>
+          {/* Nom complet */}
+          <div>
+            <label className="block text-sm font-medium text-myibc-blue mb-2">
+              <User className="w-4 h-4 inline mr-1" />
+              Nom complet
+            </label>
+            <input
+              type="text"
+              value={nomComplet}
+              onChange={(e) => {
+                setNomComplet(e.target.value);
+                if (errors.nomComplet) setErrors(prev => ({ ...prev, nomComplet: '' }));
+              }}
+              placeholder="Votre nom complet"
+              className={`w-full px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-myibc-blue focus:border-myibc-blue ${
+                errors.nomComplet ? 'border-red-300' : 'border-gray-300'
+              }`}
+            />
+            {errors.nomComplet && (
+              <p className="mt-1 text-sm text-red-600">{errors.nomComplet}</p>
+            )}
           </div>
 
           {/* Sélection du pays */}

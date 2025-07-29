@@ -50,46 +50,34 @@ export function formatPhoneNumber(phone: string): string {
 }
 
 // Validation de la date de naissance
-export function validateBirthDate(dateString: string, minAge?: number, maxAge?: number): ValidationResult {
-  if (!dateString) {
+export function validateBirthDate(
+  dateString: string, 
+  minAge?: number, 
+  maxAge?: number | null
+): ValidationResult {
+  if (!dateString.trim()) {
     return { isValid: false, error: "La date de naissance est requise" };
   }
 
   const birthDate = new Date(dateString);
-  const today = new Date();
-  
-  // Vérifie si la date est valide
   if (isNaN(birthDate.getTime())) {
-    return { isValid: false, error: "Date invalide" };
-  }
-  
-  // Vérifie si la date n'est pas dans le futur
-  if (birthDate > today) {
-    return { isValid: false, error: "La date de naissance ne peut pas être dans le futur" };
-  }
-  
-  // Vérifie si la date n'est pas trop ancienne (plus de 120 ans)
-  const maxDate = new Date();
-  maxDate.setFullYear(maxDate.getFullYear() - 120);
-  if (birthDate < maxDate) {
-    return { isValid: false, error: "Date de naissance trop ancienne" };
+    return { isValid: false, error: "Format de date invalide" };
   }
 
-  // Calcule l'âge
   const age = calculateAge(dateString);
   
-  // Vérifie les limites d'âge si spécifiées
   if (minAge !== undefined && age < minAge) {
     return { 
       isValid: false, 
-      error: `Âge minimum requis: ${minAge} ans (vous avez ${age} ans)` 
+      error: `L'âge minimum requis est de ${minAge} ans` 
     };
   }
   
-  if (maxAge !== undefined && age > maxAge) {
+  // Vérifier l'âge maximum seulement s'il est défini (pas null)
+  if (maxAge !== undefined && maxAge !== null && age > maxAge) {
     return { 
       isValid: false, 
-      error: `Âge maximum autorisé: ${maxAge} ans (vous avez ${age} ans)` 
+      error: `L'âge maximum autorisé est de ${maxAge} ans` 
     };
   }
 

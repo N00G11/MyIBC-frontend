@@ -19,7 +19,7 @@ interface Camp {
 }
 
 interface UserCampAmounts {
-  campAgneauxAmount: number;
+  CampFondationAmount: number;
   campJeuneAmount: number;
   campLeaderAmount: number;
 }
@@ -65,7 +65,7 @@ export function LeaderCampDistribution() {
 
         // Mapping des types de camps aux montants
         const campAmountMapping: { [key: string]: number } = {
-          "Camp des Agneaux": userAmounts.campAgneauxAmount,
+          "Camp de la Fondation": userAmounts.CampFondationAmount,
           "Camp des Jeunes": userAmounts.campJeuneAmount,
           "Camp des Leaders": userAmounts.campLeaderAmount,
         };

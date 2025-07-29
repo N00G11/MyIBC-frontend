@@ -17,8 +17,8 @@ type Payement = {
   };
   utilisateur: {
     username?: string;
-    code?: string;
     telephone?: string;
+    pays?: string;
   };
 };
 
@@ -55,8 +55,8 @@ export function PayementsList() {
     // Filtrage
     const filtered = payements.filter(p => 
       p.utilisateur?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.utilisateur?.code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.utilisateur?.telephone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.utilisateur?.pays?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.camp?.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.codeTresorier?.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -106,19 +106,13 @@ export function PayementsList() {
             {searchTerm && ` pour "${searchTerm}"`}
           </p>
         </div>
-        <div className="flex items-center gap-4 text-sm">
-          <div className="bg-blue-50 px-3 py-2 rounded-md flex items-center gap-2">
-            <DollarSign className="h-4 w-4 text-blue-600" />
-            <span className="font-medium">Total: {totalAmount.toLocaleString()} FCFA</span>
-          </div>
-        </div>
       </div>
 
       {/* Barre de recherche */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
         <Input
-          placeholder="Rechercher par nom, code, téléphone, camp ou code trésorier..."
+          placeholder="Rechercher par nom, téléphone, pays, camp ou code trésorier..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="pl-10"
@@ -143,9 +137,9 @@ export function PayementsList() {
             <Table>
               <TableHeader className="bg-gray-50">
                 <TableRow>
-                  <TableHead className="font-semibold">Nom</TableHead>
-                  <TableHead className="font-semibold">Code Participant</TableHead>
+                  <TableHead className="font-semibold">Nom complet</TableHead>
                   <TableHead className="font-semibold">Téléphone</TableHead>
+                  <TableHead className="font-semibold">Pays</TableHead>
                   <TableHead className="font-semibold">Camp</TableHead>
                   <TableHead className="font-semibold">Montant</TableHead>
                   <TableHead className="font-semibold">Code Trésorier</TableHead>
@@ -161,12 +155,12 @@ export function PayementsList() {
                       )}
                     </TableCell>
                     <TableCell className="text-gray-600">
-                      {p.utilisateur?.code || (
+                      {p.utilisateur?.telephone || (
                         <span className="text-gray-400 italic">Non renseigné</span>
                       )}
                     </TableCell>
                     <TableCell className="text-gray-600">
-                      {p.utilisateur?.telephone || (
+                      {p.utilisateur?.pays || (
                         <span className="text-gray-400 italic">Non renseigné</span>
                       )}
                     </TableCell>

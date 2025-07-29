@@ -11,7 +11,8 @@ import axiosInstance from "../request/reques";
 interface Utilisateur {
   id: number;
   username: string;
-  email?: string | null;
+  telephone?: string | null;
+  pays?: string | null;
   code?: string | null;
 }
 
@@ -72,10 +73,16 @@ export function LeaderActions() {
                 <label className="text-sm font-medium text-gray-500">Nom d'utilisateur</label>
                 <p className="text-base font-semibold">{utilisateur.username}</p>
               </div>
-              {utilisateur.email && (
+              {utilisateur.telephone && (
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Email</label>
-                  <p className="text-base">{utilisateur.email}</p>
+                  <label className="text-sm font-medium text-gray-500">Téléphone</label>
+                  <p className="text-base">{utilisateur.telephone}</p>
+                </div>
+              )}
+              {utilisateur.pays && (
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Pays</label>
+                  <p className="text-base">{utilisateur.pays}</p>
                 </div>
               )}
               <div className="flex flex-col items-center mt-6">

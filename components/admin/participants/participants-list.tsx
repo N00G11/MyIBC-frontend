@@ -185,7 +185,7 @@ export function InscriptionsList() {
                 <TableHead>Type de camp</TableHead>
                 <TableHead>Pays</TableHead>
                 <TableHead>Ville</TableHead>
-                <TableHead>Délégation</TableHead>
+                <TableHead>Localitée</TableHead>
                 <TableHead>Utilisateur</TableHead>
                 <TableHead>Badge</TableHead>
                 <TableHead className="w-[80px]"></TableHead>

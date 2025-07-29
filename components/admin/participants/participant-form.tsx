@@ -6,9 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PhoneInput } from "@/components/ui/phone-input";
 import { DateInput } from "@/components/ui/date-input";
-import { NameInput } from "@/components/ui/name-input";
 import { useParticipantForm } from "@/hooks/use-participant-form";
 import {
   UserPlus,
@@ -22,17 +20,59 @@ import {
   Calendar,
   Phone,
   User,
+  ChevronDown,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { calculateAge } from "@/lib/participant-utils";
 import { error } from "console";
-import { SetStateAction } from "react";
+import { SetStateAction, useState } from "react";
+
+// Type pour les pays
+interface Country {
+  name: string;
+  code: string;
+  dialCode: string;
+}
 
 export function ParticipantForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const campId = searchParams.get("id");
   const code = searchParams.get("id2");
+
+  // États pour la gestion du téléphone
+  const [selectedCountry, setSelectedCountry] = useState<string>('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  const [countrySearch, setCountrySearch] = useState<string>('');
+  const [phoneNumber, setPhoneNumber] = useState<string>('');
+
+  // Liste des pays avec leurs indicatifs
+  const phoneCountries: Country[] = [
+    { name: 'Afghanistan', code: 'AF', dialCode: '+93' },
+    { name: 'Afrique du Sud', code: 'ZA', dialCode: '+27' },
+    { name: 'Algérie', code: 'DZ', dialCode: '+213' },
+    { name: 'Allemagne', code: 'DE', dialCode: '+49' },
+    { name: 'Canada', code: 'CA', dialCode: '+1' },
+    { name: 'Cameroun', code: 'CM', dialCode: '+237' },
+    { name: 'Côte d\'Ivoire', code: 'CI', dialCode: '+225' },
+    { name: 'Espagne', code: 'ES', dialCode: '+34' },
+    { name: 'États-Unis', code: 'US', dialCode: '+1' },
+    { name: 'France', code: 'FR', dialCode: '+33' },
+    { name: 'Gabon', code: 'GA', dialCode: '+241' },
+    { name: 'Ghana', code: 'GH', dialCode: '+233' },
+    { name: 'Guinée', code: 'GN', dialCode: '+224' },
+    { name: 'Italie', code: 'IT', dialCode: '+39' },
+    { name: 'Mali', code: 'ML', dialCode: '+223' },
+    { name: 'Maroc', code: 'MA', dialCode: '+212' },
+    { name: 'Niger', code: 'NE', dialCode: '+227' },
+    { name: 'Nigeria', code: 'NG', dialCode: '+234' },
+    { name: 'Royaume-Uni', code: 'GB', dialCode: '+44' },
+    { name: 'Sénégal', code: 'SN', dialCode: '+221' },
+    { name: 'Suisse', code: 'CH', dialCode: '+41' },
+    { name: 'Tchad', code: 'TD', dialCode: '+235' },
+    { name: 'Togo', code: 'TG', dialCode: '+228' },
+    { name: 'Tunisie', code: 'TN', dialCode: '+216' }
+  ];
 
   const {
     formData,
@@ -51,6 +91,34 @@ export function ParticipantForm() {
     isFormValid,
   } = useParticipantForm({ campId: campId || undefined, code: code || undefined });
 
+  // Trouver le pays sélectionné pour le téléphone
+  const getSelectedCountryData = (): Country | undefined => {
+    return phoneCountries.find(country => country.code === selectedCountry);
+  };
+
+  const handleCountrySelect = (countryCode: string): void => {
+    setSelectedCountry(countryCode);
+    setIsDropdownOpen(false);
+    setCountrySearch('');
+  };
+
+  // Filtrer les pays selon la recherche
+  const filteredCountries = phoneCountries.filter(country =>
+    country.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
+    country.dialCode.includes(countrySearch)
+  );
+
+  // Mettre à jour le téléphone dans le formulaire
+  const updatePhoneInForm = (phone: string, country: string) => {
+    const selectedCountryData = phoneCountries.find(c => c.code === country);
+    if (selectedCountryData && phone) {
+      const fullPhone = `${selectedCountryData.dialCode} ${phone}`;
+      updateFormData({ telephone: fullPhone });
+    } else {
+      updateFormData({ telephone: '' });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -59,6 +127,8 @@ export function ParticipantForm() {
       router.push("/utilisateur/dashboard");
     }
   };
+
+  const selectedCountryData = getSelectedCountryData();
 
   if (isLoading) {
     return (
@@ -82,10 +152,15 @@ export function ParticipantForm() {
               <UserPlus className="h-5 w-5" />
               Inscription au {campType || "camp"}
             </CardTitle>
-            {minAge && maxAge && (
+            {minAge && (
               <div className="mt-2 flex items-center gap-2 text-sm text-white/90">
                 <Users className="h-4 w-4" />
-                <span>Tranche d'âge autorisée : {minAge} à {maxAge} ans</span>
+                <span>
+                  {maxAge 
+                    ? `Tranche d'âge autorisée : ${minAge} à ${maxAge} ans`
+                    : `Âge minimum requis : ${minAge} ans et plus`
+                  }
+                </span>
               </div>
             )}
           </CardHeader>
@@ -98,22 +173,24 @@ export function ParticipantForm() {
                   Informations personnelles
                 </h3>
                 
-                {/* Nom et Prénom */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <NameInput
-                    value={formData.nom}
-                    onChange={(value) => updateFormData({ nom: value })}
-                    label="Nom"
-                    placeholder="Votre nom de famille"
-                    error={errors.nom}
+                {/* Nom complet */}
+                <div>
+                  <Label className="text-myibc-blue font-medium flex items-center gap-2 mb-2">
+                    <User className="h-4 w-4" />
+                    Nom complet <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    value={formData.nomComplet || ''}
+                    onChange={(e) => updateFormData({ nomComplet: e.target.value })}
+                    placeholder="Nom complet du participant"
+                    className={errors.nomComplet ? "border-red-500" : ""}
                   />
-                  <NameInput
-                    value={formData.prenom}
-                    onChange={(value) => updateFormData({ prenom: value })}
-                    label="Prénom"
-                    placeholder="Votre prénom"
-                    error={errors.prenom}
-                  />
+                  {errors.nomComplet && (
+                    <div className="flex items-center gap-1 text-red-600 text-sm mt-1">
+                      <AlertCircle className="h-3 w-3" />
+                      {errors.nomComplet}
+                    </div>
+                  )}
                 </div>
 
                 {/* Genre */}
@@ -149,13 +226,102 @@ export function ParticipantForm() {
                   />
                 </div>
 
-                {/* Numéro de téléphone - ligne séparée */}
+                {/* Numéro de téléphone */}
                 <div>
-                  <PhoneInput
-                    value={formData.telephone}
-                    onChange={(value) => updateFormData({ telephone: value })}
-                    error={errors.telephone}
-                  />
+                  <Label className="text-myibc-blue font-medium flex items-center gap-2 mb-2">
+                    <Phone className="h-4 w-4" />
+                    Numéro de téléphone <span className="text-red-500">*</span>
+                  </Label>
+                  
+                  {/* Sélection du pays */}
+                  <div className="mb-3">
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        className="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-myibc-blue focus:border-myibc-blue bg-white text-left flex items-center justify-between hover:border-myibc-blue transition-colors border-gray-300"
+                      >
+                        <span className={selectedCountryData ? 'text-myibc-blue' : 'text-gray-500'}>
+                          {selectedCountryData ? selectedCountryData.name : 'Sélectionnez un pays'}
+                        </span>
+                        <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                      </button>
+                      
+                      {isDropdownOpen && (
+                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-hidden">
+                          <div className="p-3 border-b border-gray-200 sticky top-0 bg-white">
+                            <input
+                              type="text"
+                              value={countrySearch}
+                              onChange={(e) => setCountrySearch(e.target.value)}
+                              placeholder="Rechercher un pays..."
+                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-myibc-blue focus:border-myibc-blue"
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </div>
+                          
+                          <div className="max-h-48 overflow-y-auto">
+                            {filteredCountries.length > 0 ? (
+                              filteredCountries.map((country) => (
+                                <button
+                                  key={country.code}
+                                  type="button"
+                                  onClick={() => handleCountrySelect(country.code)}
+                                  className="w-full px-4 py-3 text-left hover:bg-myibc-blue/5 focus:bg-myibc-blue/10 focus:outline-none text-myibc-blue flex justify-between items-center"
+                                >
+                                  <span>{country.name}</span>
+                                  <span className="text-sm text-gray-500">{country.dialCode}</span>
+                                </button>
+                              ))
+                            ) : (
+                              <div className="px-4 py-3 text-gray-500 text-sm">
+                                Aucun pays trouvé
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Champ numéro de téléphone */}
+                  <div className="flex">
+                    {selectedCountryData && (
+                      <div className="flex items-center px-4 py-2 bg-gray-50 border border-r-0 border-gray-300 rounded-l-lg text-myibc-blue font-medium">
+                        {selectedCountryData.dialCode}
+                      </div>
+                    )}
+                    <Input
+                      type="tel"
+                      value={phoneNumber}
+                      onChange={(e) => {
+                        setPhoneNumber(e.target.value);
+                        updatePhoneInForm(e.target.value, selectedCountry);
+                      }}
+                      placeholder="Votre numéro"
+                      className={`${selectedCountryData ? 'rounded-l-none' : ''} ${errors.telephone ? 'border-red-300' : ''}`}
+                    />
+                  </div>
+                  
+                  {errors.telephone && (
+                    <div className="flex items-center gap-1 text-red-600 text-sm mt-1">
+                      <AlertCircle className="h-3 w-3" />
+                      {errors.telephone}
+                    </div>
+                  )}
+                  
+                  <p className="text-xs text-gray-500 mt-1">
+                    Saisissez le numéro sans l'indicatif pays
+                  </p>
+
+                  {/* Aperçu du numéro complet */}
+                  {selectedCountryData && phoneNumber && (
+                    <div className="bg-myibc-blue/10 border border-myibc-blue/30 rounded-lg p-3 mt-2">
+                      <p className="text-sm text-myibc-blue">
+                        <strong>Numéro complet:</strong> {selectedCountryData.dialCode}{phoneNumber}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -230,7 +396,7 @@ export function ParticipantForm() {
                   <div className="md:col-span-2 lg:col-span-1">
                     <Label className="flex items-center gap-2 text-myibc-blue font-medium mb-2">
                       <MapPin className="h-4 w-4" />
-                      Délégation <span className="text-red-500">*</span>
+                      Localité <span className="text-red-500">*</span>
                     </Label>
                     <Select 
                       value={formData.delegation} 

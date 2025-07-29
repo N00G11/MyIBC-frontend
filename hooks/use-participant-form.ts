@@ -20,8 +20,7 @@ type City = { id: number; name: string; delegations: Delegation[] };
 type Country = { id: number; name: string; cities: City[] };
 
 interface FormData {
-  nom: string;
-  prenom: string;
+  nomComplet: string;
   sexe: string;
   telephone: string;
   dateNaissance: string;
@@ -31,8 +30,7 @@ interface FormData {
 }
 
 interface FormErrors {
-  nom?: string;
-  prenom?: string;
+  nomComplet?: string;
   telephone?: string;
   dateNaissance?: string;
   pays?: string;
@@ -49,8 +47,7 @@ interface UseParticipantFormProps {
 export function useParticipantForm({ campId, code }: UseParticipantFormProps) {
   // États du formulaire
   const [formData, setFormData] = useState<FormData>({
-    nom: "",
-    prenom: "",
+    nomComplet: "",
     sexe: "Masculin",
     telephone: "",
     dateNaissance: "",
@@ -151,13 +148,9 @@ export function useParticipantForm({ campId, code }: UseParticipantFormProps) {
   // Validation en temps réel
   const validateField = (field: keyof FormData, value: string): string | undefined => {
     switch (field) {
-      case 'nom':
-        const nomValidation = validateName(value, "Nom");
-        return nomValidation.isValid ? undefined : nomValidation.error;
-      
-      case 'prenom':
-        const prenomValidation = validateName(value, "Prénom");
-        return prenomValidation.isValid ? undefined : prenomValidation.error;
+      case 'nomComplet':
+        const nomCompletValidation = validateName(value, "Nom complet");
+        return nomCompletValidation.isValid ? undefined : nomCompletValidation.error;
       
       case 'telephone':
         const phoneValidation = validateInternationalPhone(value);
@@ -202,9 +195,34 @@ export function useParticipantForm({ campId, code }: UseParticipantFormProps) {
     try {
       const response = await axiosInstance.get<Camp>(`/camp/${id}`);
       setCampType(response.data.type);
-      const [min, max] = response.data.trancheAge.split("-").map(Number);
-      setMinAge(min);
-      setMaxAge(max);
+      
+      // Gestion des différents formats de tranche d'âge
+      const trancheAge = response.data.trancheAge;
+      
+      if (trancheAge.includes("et plus")) {
+        // Format "11 et plus" - seulement âge minimum
+        const minAgeMatch = trancheAge.match(/(\d+)\s*et\s*plus/i);
+        if (minAgeMatch) {
+          setMinAge(parseInt(minAgeMatch[1]));
+          setMaxAge(null); // Pas de limite d'âge maximum
+        }
+      } else if (trancheAge.includes("-")) {
+        // Format classique "18-25"
+        const [min, max] = trancheAge.split("-").map(Number);
+        setMinAge(min);
+        setMaxAge(max);
+      } else {
+        // Tentative de parser un seul âge
+        const singleAge = parseInt(trancheAge);
+        if (!isNaN(singleAge)) {
+          setMinAge(singleAge);
+          setMaxAge(singleAge);
+        } else {
+          // Format non reconnu, pas de restriction d'âge
+          setMinAge(null);
+          setMaxAge(null);
+        }
+      }
     } catch (err) {
       console.error("Erreur fetchTrancheAge:", err);
       throw new Error("Erreur lors du chargement des données du camp");

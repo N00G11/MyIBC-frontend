@@ -50,6 +50,7 @@ export const LoginForm = () => {
     { name: 'Canada', code: 'CA', dialCode: '+1' },
     { name: 'Cameroun', code: 'CM', dialCode: '+237' },
     { name: 'Côte d\'Ivoire', code: 'CI', dialCode: '+225' },
+    { name: 'Chine', code: 'CN', dialCode: '+86' },
     { name: 'Espagne', code: 'ES', dialCode: '+34' },
     { name: 'États-Unis', code: 'US', dialCode: '+1' },
     { name: 'France', code: 'FR', dialCode: '+33' },

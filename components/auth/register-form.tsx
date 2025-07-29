@@ -15,8 +15,7 @@ import {
 // Types pour les erreurs
 interface FormErrors {
   general?: string;
-  nom?: string;
-  prenom?: string;
+  nomComplet?: string;
   country?: string;
   phoneNumber?: string;
   password?: string;
@@ -42,8 +41,7 @@ interface PasswordStrength {
 export const RegisterForm = () => {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    nom: '',
-    prenom: '',
+    nomComplet: '',
     phoneNumber: '',
     password: '',
     confirmPassword: ''
@@ -65,6 +63,7 @@ export const RegisterForm = () => {
     { name: 'Allemagne', code: 'DE', dialCode: '+49' },
     { name: 'Canada', code: 'CA', dialCode: '+1' },
     { name: 'Cameroun', code: 'CM', dialCode: '+237' },
+    { name: 'Chine', code: 'CN', dialCode: '+86' },
     { name: 'Côte d\'Ivoire', code: 'CI', dialCode: '+225' },
     { name: 'Espagne', code: 'ES', dialCode: '+34' },
     { name: 'États-Unis', code: 'US', dialCode: '+1' },
@@ -127,18 +126,11 @@ export const RegisterForm = () => {
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
-    // Validation nom
-    if (!formData.nom.trim()) {
-      newErrors.nom = 'Le nom est requis';
-    } else if (formData.nom.trim().length < 2) {
-      newErrors.nom = 'Le nom doit contenir au moins 2 caractères';
-    }
-
-    // Validation prénom
-    if (!formData.prenom.trim()) {
-      newErrors.prenom = 'Le prénom est requis';
-    } else if (formData.prenom.trim().length < 2) {
-      newErrors.prenom = 'Le prénom doit contenir au moins 2 caractères';
+    // Validation nom complet
+    if (!formData.nomComplet.trim()) {
+      newErrors.nomComplet = 'Le nom complet est requis';
+    } else if (formData.nomComplet.trim().length < 2) {
+      newErrors.nomComplet = 'Le nom complet doit contenir au moins 2 caractères';
     }
 
     // Validation pays
@@ -189,8 +181,7 @@ export const RegisterForm = () => {
     try {
       const selectedCountryData = getSelectedCountryData();
       
-      // Construire le username en combinant nom et prénom
-      const username = `${formData.nom.trim()} ${formData.prenom.trim()}`;
+      const username = formData.nomComplet.trim();
       const telephone =  `${selectedCountryData!.dialCode} ${formData.phoneNumber}`
       
       const registrationData = {
@@ -243,44 +234,24 @@ export const RegisterForm = () => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Nom et Prénom */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-myibc-blue mb-2">
-              <User className="w-4 h-4 inline mr-1" />
-              Nom
-            </label>
-            <input
-              type="text"
-              value={formData.nom}
-              onChange={(e) => handleInputChange('nom', e.target.value)}
-              placeholder="Votre nom"
-              className={`w-full px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-myibc-blue focus:border-myibc-blue ${
-                errors.nom ? 'border-red-300' : 'border-gray-300'
-              }`}
-            />
-            {errors.nom && (
-              <p className="mt-1 text-sm text-red-600">{errors.nom}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-myibc-blue mb-2">
-              Prénom
-            </label>
-            <input
-              type="text"
-              value={formData.prenom}
-              onChange={(e) => handleInputChange('prenom', e.target.value)}
-              placeholder="Votre prénom"
-              className={`w-full px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-myibc-blue focus:border-myibc-blue ${
-                errors.prenom ? 'border-red-300' : 'border-gray-300'
-              }`}
-            />
-            {errors.prenom && (
-              <p className="mt-1 text-sm text-red-600">{errors.prenom}</p>
-            )}
-          </div>
+        {/* Nom complet */}
+        <div>
+          <label className="block text-sm font-medium text-myibc-blue mb-2">
+            <User className="w-4 h-4 inline mr-1" />
+            Nom complet
+          </label>
+          <input
+            type="text"
+            value={formData.nomComplet}
+            onChange={(e) => handleInputChange('nomComplet', e.target.value)}
+            placeholder="Votre nom complet"
+            className={`w-full px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-myibc-blue focus:border-myibc-blue ${
+              errors.nomComplet ? 'border-red-300' : 'border-gray-300'
+            }`}
+          />
+          {errors.nomComplet && (
+            <p className="mt-1 text-sm text-red-600">{errors.nomComplet}</p>
+          )}
         </div>
 
         {/* Sélection du pays */}
@@ -351,7 +322,7 @@ export const RegisterForm = () => {
           </label>
           <div className="flex">
             {selectedCountryData && (
-              <div className="flex items-center px-4 py-3 bg-myibc-light border border-r-0 border-gray-300 rounded-l-lg text-myibc-blue font-medium">
+              <div className="flex items-center px-4 py-3 bg-blue-50 border border-r-0 border-gray-300 rounded-l-lg text-myibc-blue font-medium">
                 {selectedCountryData.dialCode}
               </div>
             )}
@@ -368,14 +339,14 @@ export const RegisterForm = () => {
           {errors.phoneNumber && (
             <p className="mt-1 text-sm text-red-600">{errors.phoneNumber}</p>
           )}
-          <p className="text-xs text-myibc-graytext mt-1">
+          <p className="text-xs text-gray-500 mt-1">
             Saisissez votre numéro sans l'indicatif pays
           </p>
         </div>
 
         {/* Aperçu du numéro complet */}
         {selectedCountryData && formData.phoneNumber && (
-          <div className="bg-myibc-gold/10 border border-myibc-gold/30 rounded-lg p-3">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
             <p className="text-sm text-myibc-blue">
               <strong>Numéro complet:</strong> {selectedCountryData.dialCode}{formData.phoneNumber}
             </p>
@@ -506,7 +477,7 @@ export const RegisterForm = () => {
               }}
               className="mt-1 h-4 w-4 text-myibc-blue focus:ring-myibc-blue border-gray-300 rounded"
             />
-            <span className="text-sm text-myibc-graytext leading-relaxed">
+            <span className="text-sm text-gray-600 leading-relaxed">
               J'accepte les{' '}
               <a href="#" className="text-myibc-blue hover:underline font-medium">
                 conditions d'utilisation
@@ -541,7 +512,7 @@ export const RegisterForm = () => {
 
         {/* Lien vers connexion */}
         <div className="text-center pt-6 border-t border-gray-200">
-          <p className="text-sm text-myibc-graytext">
+          <p className="text-sm text-gray-600">
             Déjà un compte ?{' '}
             <Link 
               href="/auth/login"

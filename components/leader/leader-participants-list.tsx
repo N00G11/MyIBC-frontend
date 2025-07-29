@@ -39,8 +39,7 @@ interface Camp {
 interface Inscription {
   badge: boolean;
   id: number;
-  nom: string;
-  prenom: string;
+  nomComplet: string;
   sexe: string;
   dateNaissance: string;
   telephone: string;
@@ -150,7 +149,7 @@ export function LeaderParticipantsList() {
 
         const mapped: FormattedParticipant[] = data.map((i) => ({
           id: i.id || 0,
-          name: `${i.nom || ''} ${i.prenom || ''}`.trim() || 'Nom non défini',
+          name: i.nomComplet || 'Nom non défini',
           gender: i.sexe || 'Non spécifié',
           age: i.dateNaissance ? getAge(i.dateNaissance) : 0,
           campType: i.camp?.type || 'Camp non défini',

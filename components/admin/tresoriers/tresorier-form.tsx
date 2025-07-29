@@ -12,8 +12,7 @@ import axiosInstance from "@/components/request/reques"
 // Types pour les erreurs
 interface FormErrors {
   general?: string;
-  nom?: string;
-  prenom?: string;
+  nomComplet?: string;
   country?: string;
   phoneNumber?: string;
   password?: string;
@@ -36,8 +35,7 @@ interface PasswordStrength {
 
 export function TresorierForm({ onAdded }: { onAdded?: () => void }) {
   const [formData, setFormData] = useState({
-    nom: '',
-    prenom: '',
+    nomComplet: '',
     phoneNumber: '',
     password: ''
   });
@@ -117,18 +115,11 @@ export function TresorierForm({ onAdded }: { onAdded?: () => void }) {
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
-    // Validation nom
-    if (!formData.nom.trim()) {
-      newErrors.nom = 'Le nom est requis';
-    } else if (formData.nom.trim().length < 2) {
-      newErrors.nom = 'Le nom doit contenir au moins 2 caractères';
-    }
-
-    // Validation prénom
-    if (!formData.prenom.trim()) {
-      newErrors.prenom = 'Le prénom est requis';
-    } else if (formData.prenom.trim().length < 2) {
-      newErrors.prenom = 'Le prénom doit contenir au moins 2 caractères';
+    // Validation nom complet
+    if (!formData.nomComplet.trim()) {
+      newErrors.nomComplet = 'Le nom complet est requis';
+    } else if (formData.nomComplet.trim().length < 2) {
+      newErrors.nomComplet = 'Le nom complet doit contenir au moins 2 caractères';
     }
 
     // Validation pays
@@ -164,8 +155,7 @@ export function TresorierForm({ onAdded }: { onAdded?: () => void }) {
     try {
       const selectedCountryData = getSelectedCountryData();
       
-      // Construire le username en combinant nom et prénom
-      const username = `${formData.nom.trim()} ${formData.prenom.trim()}`;
+      const username = formData.nomComplet.trim();
       const telephone = `${selectedCountryData!.dialCode} ${formData.phoneNumber}`;
       
       await axiosInstance.post("/tresoriers", {
@@ -176,8 +166,7 @@ export function TresorierForm({ onAdded }: { onAdded?: () => void }) {
       });
       
       setFormData({
-        nom: '',
-        prenom: '',
+        nomComplet: '',
         phoneNumber: '',
         password: ''
       });
@@ -218,38 +207,22 @@ export function TresorierForm({ onAdded }: { onAdded?: () => void }) {
         )}
         
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Nom et Prénom */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="nom" className="flex items-center gap-1">
-                <User className="w-4 h-4" />
-                Nom
-              </Label>
-              <Input
-                id="nom"
-                value={formData.nom}
-                onChange={(e) => handleInputChange('nom', e.target.value)}
-                placeholder="Nom du trésorier"
-                className={errors.nom ? 'border-red-300' : ''}
-              />
-              {errors.nom && (
-                <p className="text-sm text-red-600">{errors.nom}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="prenom">Prénom</Label>
-              <Input
-                id="prenom"
-                value={formData.prenom}
-                onChange={(e) => handleInputChange('prenom', e.target.value)}
-                placeholder="Prénom du trésorier"
-                className={errors.prenom ? 'border-red-300' : ''}
-              />
-              {errors.prenom && (
-                <p className="text-sm text-red-600">{errors.prenom}</p>
-              )}
-            </div>
+          {/* Nom complet */}
+          <div className="space-y-2">
+            <Label htmlFor="nomComplet" className="flex items-center gap-1">
+              <User className="w-4 h-4" />
+              Nom complet
+            </Label>
+            <Input
+              id="nomComplet"
+              value={formData.nomComplet}
+              onChange={(e) => handleInputChange('nomComplet', e.target.value)}
+              placeholder="Nom complet du trésorier"
+              className={errors.nomComplet ? 'border-red-300' : ''}
+            />
+            {errors.nomComplet && (
+              <p className="text-sm text-red-600">{errors.nomComplet}</p>
+            )}
           </div>
 
           {/* Sélection du pays */}

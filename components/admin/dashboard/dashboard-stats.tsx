@@ -86,7 +86,7 @@ export function DashboardStats() {
           <CardTitle className="text-sm font-medium text-muted-foreground">
             Montant total
           </CardTitle>
-          <DollarSign className="h-5 w-5 text-muted-foreground" />
+          <span className="text-4xl font-bold text-gray-300 block mb-3">XAF</span>
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-[#001F5B]">
