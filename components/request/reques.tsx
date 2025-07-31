@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "https://localhost:8443/api", // ✅ dynamique
+  baseURL: "https://82.25.115.69:8443/api", // ✅ dynamique
   withCredentials: true,
 });
 
