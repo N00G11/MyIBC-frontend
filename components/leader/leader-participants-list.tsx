@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -136,6 +137,7 @@ function getAge(dateString: string): number {
 
 // Composant principal
 export function LeaderParticipantsList() {
+  const router = useRouter();
   const [code, setCode] = useState<string | null>(null);
   const [participants, setParticipants] = useState<FormattedParticipant[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -273,6 +275,14 @@ export function LeaderParticipantsList() {
     console.log("Badge demandé pour ID:", participantId);
   }, []);
 
+  const handleRowClick = useCallback((participant: FormattedParticipant) => {
+    if (participant.badge) {
+      // Ouvrir dans une nouvelle fenêtre/onglet
+      const badgeUrl = `/badge?id=${encodeURIComponent(participant.id)}`;
+      window.open(badgeUrl, '_blank', 'noopener,noreferrer');
+    }
+  }, []);
+
   if (!code) {
     return (
       <Card>
@@ -347,7 +357,23 @@ export function LeaderParticipantsList() {
                 </TableRow>
               ) : paginatedData.length > 0 ? (
                 paginatedData.map((p) => (
-                  <TableRow key={p.id} className="h-18 hover:bg-gray-50 transition-colors">
+                  <TableRow 
+                    key={p.id} 
+                    className={`h-18 transition-colors ${
+                      p.badge 
+                        ? "hover:bg-blue-50 cursor-pointer hover:shadow-sm" 
+                        : "hover:bg-gray-50"
+                    }`}
+                    onClick={() => handleRowClick(p)}
+                    role={p.badge ? "button" : undefined}
+                    tabIndex={p.badge ? 0 : undefined}
+                    onKeyDown={(e) => {
+                      if (p.badge && (e.key === 'Enter' || e.key === ' ')) {
+                        e.preventDefault();
+                        handleRowClick(p);
+                      }
+                    }}
+                  >
                     <TableCell className="font-medium text-base py-5 px-6">{p.name}</TableCell>
                     <TableCell className="py-5 px-4">
                       <Badge 
@@ -364,18 +390,16 @@ export function LeaderParticipantsList() {
                       <Badge variant="outline" className="text-sm px-3 py-1.5">{p.campType}</Badge>
                     </TableCell>
                     <TableCell className="text-center py-5 px-4">
-                      <Button
-                        size="sm"
-                        disabled={!p.badge}
-                        onClick={() => handleGenerateBadge(p.id)}
-                        variant="ghost"
-                        className="p-2 hover:bg-gray-100 rounded-full"
-                        aria-label="Générer badge"
-                      >
+                      <div className="flex items-center justify-center">
                         <CheckCircle2
                           className={`h-6 w-6 ${p.badge ? "text-green-600" : "text-gray-400"}`}
                         />
-                      </Button>
+                        {p.badge && (
+                          <span className="ml-2 text-xs text-blue-600 font-medium">
+                            Cliquer pour badge
+                          </span>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))

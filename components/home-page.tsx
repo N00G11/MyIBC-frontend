@@ -40,33 +40,33 @@ const slides = [
     id: 1,
     gradient: 'from-blue-600 via-purple-600 to-blue-800',
     icon: '🏕️',
-    title: 'Éditions Précédentes',
-    subtitle: 'Découvrez les moments forts de nos camps bibliques',
-    description: 'Des souvenirs inoubliables et des vies transformées par la Parole de Dieu'
+    title: 'Camps Bibliques Internationaux (CBI)',
+    subtitle: 'Depuis 2009 - Vision du Pasteur Théodore Andoseh',
+    description: 'Formation stratégique de la jeunesse selon la vision reçue de Zacharias Tanee Fomum'
   },
   {
     id: 2,
     gradient: 'from-indigo-600 via-blue-600 to-cyan-600',
     icon: '💪',
-    title: 'Slogans Forts',
-    subtitle: '"Jeunes, Soyez Forts dans la Foi"',
-    description: 'Des messages puissants qui marquent et transforment les cœurs'
+    title: 'Équiper des Ministres Compétents',
+    subtitle: '"Bâtir et établir fermement dans le Seigneur"',
+    description: 'Former une génération de co-ouvriers prêts à relever les défis contemporains'
   },
   {
     id: 3,
     gradient: 'from-purple-600 via-pink-600 to-red-600',
-    icon: '🎵',
-    title: 'Chorégraphies',
-    subtitle: 'Louange et Adoration en Mouvement',
-    description: 'L\'expression de notre joie à travers la danse et la musique'
+    icon: '🎯',
+    title: 'Vision et Mission Globale',
+    subtitle: 'Imprégner de la vision reçue',
+    description: 'Encourager la consécration totale à la mission de Dieu dans le monde'
   },
   {
     id: 4,
     gradient: 'from-green-600 via-teal-600 to-blue-600',
     icon: '📖',
-    title: 'Études Bibliques',
-    subtitle: 'Approfondissement de la Parole',
-    description: 'Des moments d\'enseignement qui nourrissent l\'âme et fortifient la foi'
+    title: 'Formation Spirituelle d\'Excellence',
+    subtitle: 'Enseignements bibliques approfondis',
+    description: 'Construction d\'une génération de disciples pérenne, garants de la continuité spirituelle'
   }
 ];
 
@@ -125,8 +125,15 @@ export default function HomePage() {
         <div className="w-full" style={{ backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.95)' : 'transparent' }}>
           <nav className="max-w-7xl mx-auto px-4 lg:px-8">
             <div className="flex items-center justify-between h-14 lg:h-16">
-              {/* Logo */}
-              <div className="flex items-center">
+              {/* Logo avec CMCI */}
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-white flex items-center justify-center shadow-lg">
+                  <img
+                    src="/CMCI.png"
+                    alt="CMCI Logo"
+                    className="w-8 h-8 lg:w-10 lg:h-10 object-contain"
+                  />
+                </div>
                 <h1 className={`text-xl lg:text-2xl font-bold transition-colors duration-300 ${
                   isScrolled ? 'text-blue-900' : 'text-white'
                 }`}>
@@ -182,7 +189,7 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Hero Slider Section */}
+      {/* Hero Section avec définition CBI */}
       <section id="accueil" className="relative w-full h-screen overflow-hidden">
         <div className="relative w-full h-full">
           {slides.map((slide, index) => {
@@ -284,6 +291,18 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+
+        {/* Section de définition CBI */}
+        <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 text-center">
+          <div className="bg-black/40 backdrop-blur-sm rounded-lg px-6 py-3 border border-white/20">
+            <p className="text-white/90 text-sm lg:text-base font-medium">
+              CBI = Camps Bibliques Internationaux
+            </p>
+            <p className="text-white/75 text-xs lg:text-sm mt-1">
+              Communauté Missionnaire Chrétienne Internationale (CMCI)
+            </p>
+          </div>
+        </div>
       </section>
 
       {/* Vision Section */}
@@ -324,11 +343,12 @@ function VisionSection() {
           <div className={sectionClass}>
             <div className="text-center mb-12 lg:mb-16">
               <h2 className="text-3xl lg:text-5xl font-bold text-blue-900 mb-6">
-                Notre Vision
+                Notre Vision CBI
               </h2>
-              <p className="text-lg lg:text-xl text-gray-600 max-w-3xl mx-auto">
-                Former une génération de jeunes chrétiens passionnés, équipés et engagés 
-                pour transformer leur communauté par l'Évangile de Jésus-Christ.
+              <p className="text-lg lg:text-xl text-gray-600 max-w-4xl mx-auto">
+                Portée par le Pasteur Théodore Andoseh, leader mondial de la Communauté Missionnaire Chrétienne Internationale (CMCI), 
+                notre vision est de former une génération de disciples engagés dans la mission globale de Dieu, 
+                équipés selon la vision reçue de Zacharias Tanee Fomum.
               </p>
             </div>
             
@@ -340,11 +360,11 @@ function VisionSection() {
                   </div>
                   <div>
                     <h3 className="text-lg lg:text-xl font-semibold text-blue-900 mb-2">
-                      Transformation spirituelle
+                      Bâtir et établir fermement
                     </h3>
                     <p className="text-gray-600">
-                      Accompagner chaque participant dans sa croissance spirituelle 
-                      et son intimité avec Dieu.
+                      Construire les jeunes et les établir solidement dans le Seigneur 
+                      pour une croissance spirituelle durable.
                     </p>
                   </div>
                 </div>
@@ -355,11 +375,11 @@ function VisionSection() {
                   </div>
                   <div>
                     <h3 className="text-lg lg:text-xl font-semibold text-blue-900 mb-2">
-                      Communauté fraternelle
+                      Équiper des ministres compétents
                     </h3>
                     <p className="text-gray-600">
-                      Créer des liens durables et authentiques entre les participants 
-                      de différents horizons.
+                      Former des co-ouvriers spirituels capables de relever 
+                      les défis contemporains avec excellence.
                     </p>
                   </div>
                 </div>
@@ -370,11 +390,11 @@ function VisionSection() {
                   </div>
                   <div>
                     <h3 className="text-lg lg:text-xl font-semibold text-blue-900 mb-2">
-                      Formation d'excellence
+                      Imprégner de la vision reçue
                     </h3>
                     <p className="text-gray-600">
-                      Offrir un enseignement biblique de qualité adapté à chaque 
-                      tranche d'âge et niveau spirituel.
+                      Transmettre fidèlement la vision de Zacharias Tanee Fomum 
+                      et encourager la consécration totale à la mission.
                     </p>
                   </div>
                 </div>
@@ -386,8 +406,9 @@ function VisionSection() {
                   <div className="absolute bottom-6 left-6 text-3xl lg:text-4xl opacity-20">⛪</div>
                   <div className="text-center text-white z-10">
                     <div className="text-4xl lg:text-6xl mb-4">🎯</div>
-                    <div className="text-xl lg:text-2xl font-bold">Notre Vision</div>
-                    <div className="text-base lg:text-lg opacity-90 mt-2">Formation • Transformation • Mission</div>
+                    <div className="text-xl lg:text-2xl font-bold">Vision Camps Bibliques</div>
+                    <div className="text-base lg:text-lg opacity-90 mt-2">Formation • Vision • Mission</div>
+                    <div className="text-sm opacity-80 mt-2">Depuis 2009</div>
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                 </div>
@@ -414,12 +435,15 @@ function VerseSection() {
           <div className={sectionClass}>
             <BookOpen className="w-12 h-12 lg:w-16 lg:h-16 text-yellow-400 mx-auto mb-6 lg:mb-8" />
             <blockquote className="text-xl lg:text-4xl font-light italic mb-6 lg:mb-8 leading-relaxed">
-              "Que personne ne méprise ta jeunesse; mais sois un modèle pour les fidèles, 
-              en parole, en conduite, en charité, en foi, en pureté."
+              "Ta préparation spirituelle est toujours en vue de ce que tu vois"
             </blockquote>
             <cite className="text-yellow-300 text-base lg:text-lg font-medium">
-              1 Timothée 4:12
+              Pasteur Théodore Andoseh
             </cite>
+            <p className="text-white/80 text-sm lg:text-base mt-4 max-w-3xl mx-auto">
+              Une communauté à impact global naît d'un travail stratégique et d'un leadership 
+              qui sert avec humilité et zèle.
+            </p>
           </div>
         </div>
       </div>
@@ -433,24 +457,24 @@ function TestimonialsSection() {
 
   const testimonials = [
     {
-      name: "Marie Kouassi",
-      role: "Participante 2023",
-      content: "Ce camp a complètement transformé ma relation avec Dieu. J'ai découvert ma vocation et ma passion pour l'évangélisation.",
-      initials: "MK",
+      name: "",
+      role: "",
+      content: "",
+      initials: "?",
       bgColor: "from-pink-500 to-rose-600"
     },
     {
-      name: "David Ngono",
-      role: "Leader 2024",
-      content: "L'expérience de leadership m'a permis de développer mes capacités et de servir avec excellence dans mon église locale.",
-      initials: "DN",
+      name: "",
+      role: "",
+      content: "",
+      initials: "?",
       bgColor: "from-blue-500 to-indigo-600"
     },
     {
-      name: "Grace Mbarga",
-      role: "Participante 2022",
-      content: "Les amitiés créées ici durent encore aujourd'hui. C'est bien plus qu'un camp, c'est une famille spirituelle.",
-      initials: "GM",
+      name: "",
+      role: "",
+      content: "",
+      initials: "?",
       bgColor: "from-purple-500 to-violet-600"
     }
   ];
@@ -480,13 +504,21 @@ function TestimonialsSection() {
                       {testimonial.initials}
                     </div>
                     <div>
-                      <h4 className="font-semibold text-blue-900 text-sm lg:text-base">{testimonial.name}</h4>
-                      <p className="text-gray-500 text-xs lg:text-sm">{testimonial.role}</p>
+                      <h4 className="font-semibold text-blue-900 text-sm lg:text-base">
+                        {testimonial.name || "Témoignage à venir"}
+                      </h4>
+                      <p className="text-gray-500 text-xs lg:text-sm">
+                        {testimonial.role || "Participant CBI"}
+                      </p>
                     </div>
                   </div>
-                  <p className="text-gray-700 italic leading-relaxed text-sm lg:text-base">
-                    "{testimonial.content}"
-                  </p>
+                  <div className="text-gray-700 italic leading-relaxed text-sm lg:text-base min-h-[100px] flex items-center justify-center">
+                    {testimonial.content || (
+                      <span className="text-gray-400 text-center">
+                        Témoignage en cours de collecte...
+                      </span>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -502,10 +534,10 @@ function StatsSection() {
   const [ref, isInView] = useInView();
 
   const stats = [
-    { number: "500+", label: "Jeunes formés", icon: Users },
+    { number: "2000+", label: "Participants par camp", icon: Users },
     { number: "15", label: "Années d'expérience", icon: Award },
-    { number: "25", label: "Pays représentés", icon: Crown },
-    { number: "12", label: "Camps organisés", icon: Camera }
+    { number: "2009", label: "Premier camp CMCI", icon: Crown },
+    { number: "2012", label: "Phase internationale", icon: Globe }
   ];
 
   const sectionClass = 'transition-all duration-1000 ' + 
@@ -518,10 +550,10 @@ function StatsSection() {
           <div className={sectionClass}>
             <div className="text-center mb-12 lg:mb-16">
               <h2 className="text-3xl lg:text-5xl font-bold text-blue-900 mb-6">
-                Nos Réalisations
+                Impact des CBI
               </h2>
               <p className="text-lg lg:text-xl text-gray-600">
-                Quelques chiffres qui témoignent de l'impact de nos camps bibliques
+                Quelques chiffres qui témoignent de l'impact transformateur de nos Camps Bibliques Internationaux
               </p>
             </div>
             
@@ -555,12 +587,42 @@ function GallerySection() {
   const [ref, isInView] = useInView();
 
   const galleryItems = [
-    { gradient: "from-blue-500 to-cyan-600", icon: "🏕️", title: "Camp 1" },
-    { gradient: "from-purple-500 to-pink-600", icon: "🎵", title: "Camp 2" },
-    { gradient: "from-green-500 to-teal-600", icon: "📖", title: "Camp 3" },
-    { gradient: "from-orange-500 to-red-600", icon: "⛪", title: "Camp 4" },
-    { gradient: "from-indigo-500 to-blue-600", icon: "🙏", title: "Camp 5" },
-    { gradient: "from-pink-500 to-rose-600", icon: "✨", title: "Camp 6" }
+    { 
+      image: "/cmci1.png", 
+      title: "CBI Koumé 2022", 
+      description: "Camp Biblique International - Enseignements et formation",
+      alt: "International Bible Youth Camp Koumé 2022 - Teaching session"
+    },
+    { 
+      image: "/cmci7.png", 
+      title: "Leadership Formation", 
+      description: "Sessions de formation des leaders avec le Pasteur",
+      alt: "Pastor Theodore Andoseh during leadership training session"
+    },
+    { 
+      image: "/cmci3.png", 
+      title: "Assemblée des Participants", 
+      description: "Moments de communion et d'échange entre participants",
+      alt: "Large gathering of participants in worship"
+    },
+    { 
+      image: "/cmci4.png", 
+      title: "Louange et Adoration", 
+      description: "Temps de louange avec instruments et chorégraphies",
+      alt: "Praise and worship session with live music"
+    },
+    { 
+      image: "/cmci5.png", 
+      title: "Études Bibliques", 
+      description: "Sessions d'approfondissement de la Parole de Dieu",
+      alt: "Bible study sessions with participants"
+    },
+    { 
+      image: "/cmci6.png", 
+      title: "Communion Fraternelle", 
+      description: "Moments de partage et de communion entre frères et sœurs",
+      alt: "Fellowship time among participants"
+    }
   ];
 
   const sectionClass = 'transition-all duration-1000 ' + 
@@ -573,27 +635,57 @@ function GallerySection() {
           <div className={sectionClass}>
             <div className="text-center mb-12 lg:mb-16">
               <h2 className="text-3xl lg:text-5xl font-bold text-blue-900 mb-6">
-                Galerie Photos
+                Galerie Photos CBI
               </h2>
               <p className="text-lg lg:text-xl text-gray-600">
-                Revivez les moments forts de nos camps à travers ces images
+                Revivez les moments forts de nos Camps Bibliques Internationaux à travers ces images authentiques
               </p>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
               {galleryItems.map((item, index) => (
-                <div key={index} className="relative group overflow-hidden rounded-xl">
-                  <div className={`w-full h-48 lg:h-64 bg-gradient-to-br ${item.gradient} flex items-center justify-center relative transition-transform duration-500 group-hover:scale-110`}>
-                    <div className="text-4xl lg:text-6xl opacity-80 group-hover:scale-110 transition-transform duration-300">
-                      {item.icon}
+                <div key={index} className="relative group overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500">
+                  <div className="relative h-64 lg:h-80 overflow-hidden">
+                    <img
+                      src={item.image}
+                      alt={item.alt}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      loading="lazy"
+                      onError={(e) => {
+                        // Fallback si l'image ne charge pas
+                        const target = e.target as HTMLImageElement;
+                        target.src = `data:image/svg+xml,${encodeURIComponent(`
+                          <svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="100%" height="100%" fill="linear-gradient(135deg, #3b82f6, #1e40af)"/>
+                            <text x="50%" y="40%" text-anchor="middle" fill="white" font-size="24" font-family="Arial">📸</text>
+                            <text x="50%" y="60%" text-anchor="middle" fill="white" font-size="16" font-family="Arial">${item.title}</text>
+                          </svg>
+                        `)}`;
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    {/* Overlay avec informations */}
+                    <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+                      <h3 className="text-white font-bold text-lg mb-2">{item.title}</h3>
+                      <p className="text-white/90 text-sm leading-relaxed">{item.description}</p>
                     </div>
-                    <div className="absolute bottom-4 left-4 text-white font-semibold text-sm lg:text-lg">
-                      {item.title}
+                    
+                    {/* Badge CBI */}
+                    <div className="absolute top-4 right-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                      CBI
                     </div>
+            
                   </div>
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300" />
                 </div>
               ))}
+            </div>
+            
+            {/* Call to action */}
+            <div className="text-center mt-12">
+              <p className="text-gray-600 mb-6">
+                Découvrez plus de moments exceptionnels de nos camps sur nos réseaux sociaux
+              </p>
             </div>
           </div>
         </div>
@@ -608,27 +700,27 @@ function TeamSection() {
 
   const team = [
     {
-      name: "Pasteur Jean-Paul Koffi",
-      role: "Directeur Général",
-      initials: "JPK",
+      name: "Pasteur Théodore Andoseh",
+      role: "Leader Mondial CMCI",
+      initials: "TA",
       bgColor: "from-blue-600 to-indigo-700"
     },
     {
-      name: "Mme Sarah Atangana",
-      role: "Coordinatrice Pédagogique",
-      initials: "SA",
+      name: "Équipe Pédagogique",
+      role: "Formation Spirituelle",
+      initials: "EP",
       bgColor: "from-pink-500 to-rose-600"
     },
     {
-      name: "Pasteur Michel Ouédraogo",
-      role: "Responsable Jeunes",
-      initials: "MO",
+      name: "Leaders CBI",
+      role: "Encadrement Jeunes",
+      initials: "LC",
       bgColor: "from-green-500 to-emerald-600"
     },
     {
-      name: "Sœur Grace Talla",
-      role: "Responsable Leadership",
-      initials: "GT",
+      name: "Coordinateurs",
+      role: "Organisation & Logistique",
+      initials: "CO",
       bgColor: "from-purple-500 to-violet-600"
     }
   ];
@@ -643,10 +735,10 @@ function TeamSection() {
           <div className={sectionClass}>
             <div className="text-center mb-12 lg:mb-16">
               <h2 className="text-3xl lg:text-5xl font-bold text-blue-900 mb-6">
-                Notre Équipe
+                Leadership CBI
               </h2>
               <p className="text-lg lg:text-xl text-gray-600">
-                Une équipe passionnée et expérimentée au service de votre formation spirituelle
+                Une équipe dédiée à la transmission de la vision et à la formation de co-ouvriers spirituels
               </p>
             </div>
             
@@ -657,7 +749,7 @@ function TeamSection() {
                     <div className={`w-40 h-40 lg:w-48 lg:h-48 rounded-full mx-auto bg-gradient-to-br ${member.bgColor} flex items-center justify-center text-white shadow-lg group-hover:shadow-xl transition-shadow duration-300`}>
                       <div className="text-center">
                         <div className="text-3xl lg:text-4xl font-bold mb-2">{member.initials}</div>
-                        <div className="text-xs lg:text-sm opacity-80">👤</div>
+                        <div className="text-xs lg:text-sm opacity-80">🛡️</div>
                       </div>
                     </div>
                   </div>
@@ -690,11 +782,12 @@ function FooterSection() {
           }`}>
             <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-8">
               <div className="lg:col-span-2">
-                <h3 className="text-xl lg:text-2xl font-bold mb-6">MyIBC</h3>
+                <h3 className="text-xl lg:text-2xl font-bold mb-6">MyIBC - CMCI</h3>
                 <p className="text-gray-300 mb-6 leading-relaxed text-sm lg:text-base">
-                  Plateforme de gestion des camps bibliques internationaux de la CMCI. 
-                  Nous nous engageons à former une génération de jeunes chrétiens passionnés 
-                  et équipés pour transformer leur communauté.
+                  Plateforme de gestion des Camps Bibliques Internationaux de la 
+                  Communauté Missionnaire Chrétienne Internationale. Depuis 2009, 
+                  nous formons une génération de disciples engagés dans la mission globale de Dieu, 
+                  selon la vision du Pasteur Théodore Andoseh.
                 </p>
                 <div className="flex space-x-4">
                   <a href="#" className="bg-white/10 hover:bg-white/20 p-3 rounded-full transition-colors duration-300">
@@ -710,13 +803,11 @@ function FooterSection() {
               </div>
 
               <div>
-                <h4 className="text-base lg:text-lg font-semibold mb-6">Liens Rapides</h4>
+                <h4 className="text-base lg:text-lg font-semibold mb-6">Formation CBI</h4>
                 <ul className="space-y-3">
-                  <li><a href="#camps" className="text-gray-300 hover:text-yellow-400 transition-colors duration-300 text-sm lg:text-base">Nos Camps</a></li>
-                  <li><a href="#programmes" className="text-gray-300 hover:text-yellow-400 transition-colors duration-300 text-sm lg:text-base">Programmes</a></li>
-                  <li><a href="#" className="text-gray-300 hover:text-yellow-400 transition-colors duration-300 text-sm lg:text-base">Témoignages</a></li>
-                  <li><a href="#galerie" className="text-gray-300 hover:text-yellow-400 transition-colors duration-300 text-sm lg:text-base">Galerie</a></li>
-                  <li><a href="#contact" className="text-gray-300 hover:text-yellow-400 transition-colors duration-300 text-sm lg:text-base">Contact</a></li>
+                  <li><a href="#" className="text-gray-300 hover:text-yellow-400 transition-colors duration-300 text-sm lg:text-base">Camp des Agneaux</a></li>
+                  <li><a href="#" className="text-gray-300 hover:text-yellow-400 transition-colors duration-300 text-sm lg:text-base">Camp de la Fondation</a></li>
+                  <li><a href="#" className="text-gray-300 hover:text-yellow-400 transition-colors duration-300 text-sm lg:text-base">Camp des Leaders</a></li>
                 </ul>
               </div>
 
@@ -727,8 +818,8 @@ function FooterSection() {
                     <MapPin className="w-5 h-5 text-yellow-400 mt-1 flex-shrink-0" />
                     <div>
                       <p className="text-gray-300 text-sm lg:text-base">
-                        Douala, Cameroun<br />
-                        Centre Missionnaire Chrétien International
+                        Bertoua, Cameroun<br />
+                        Communauté Missionnaire Chrétienne Internationale
                       </p>
                     </div>
                   </div>
@@ -738,34 +829,9 @@ function FooterSection() {
                   </div>
                   <div className="flex items-center space-x-3">
                     <Mail className="w-5 h-5 text-yellow-400 flex-shrink-0" />
-                    <p className="text-gray-300 text-sm lg:text-base">contact@myibc.cm</p>
+                    <p className="text-gray-300 text-sm lg:text-base">cmfi.myibc@gmail.com</p>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="border-t border-white/10">
-        <div className="w-full bg-blue-900">
-          <div className="max-w-6xl mx-auto px-6 lg:px-8 py-6 lg:py-8">
-            <div className="md:flex md:items-center md:justify-between">
-              <div className="mb-4 md:mb-0">
-                <h4 className="text-base lg:text-lg font-semibold mb-2">Restez informés</h4>
-                <p className="text-gray-300 text-sm lg:text-base">
-                  Recevez les dernières nouvelles de nos camps et événements
-                </p>
-              </div>
-              <div className="flex">
-                <input
-                  type="email"
-                  placeholder="Votre adresse email"
-                  className="px-3 lg:px-4 py-2 lg:py-3 rounded-l-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-yellow-400 min-w-0 flex-1 text-sm lg:text-base"
-                />
-                <button className="bg-yellow-700 hover:bg-yellow-600 px-4 lg:px-6 py-2 lg:py-3 rounded-r-lg transition-colors duration-300 font-medium text-sm lg:text-base">
-                  S'abonner
-                </button>
               </div>
             </div>
           </div>
@@ -777,7 +843,7 @@ function FooterSection() {
           <div className="max-w-6xl mx-auto px-6 lg:px-8 py-4 lg:py-6">
             <div className="md:flex md:items-center md:justify-between text-center md:text-left">
               <p className="text-gray-400 text-xs lg:text-sm">
-                © 2024 MyIBC - CMCI. Tous droits réservés.
+                © 2024 MyIBC - Communauté Missionnaire Chrétienne Internationale. Tous droits réservés. Vision Zacharias Tanee Fomum.
               </p>
               <div className="mt-2 md:mt-0">
                 <a href="#" className="text-gray-400 hover:text-white text-xs lg:text-sm mr-6 transition-colors duration-300">

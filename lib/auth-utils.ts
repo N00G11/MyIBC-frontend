@@ -177,7 +177,7 @@ export const getRedirectPath = (role: string): string => {
     case 'ROLE_TRESORIER':
       return '/dashboard-selection';
     case 'ROLE_UTILISATEUR':
-      return 'utilisateur/dashboard';
+      return '/utilisateur/dashboard';
     default:
       return '/dashboard';
   }

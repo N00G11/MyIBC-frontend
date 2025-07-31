@@ -9,7 +9,8 @@ import {
   CreditCard, 
   UserCheck, 
   MapPin, 
-  DollarSign 
+  DollarSign,
+  Calendar
 } from "lucide-react"
 
 const menuItems = [
@@ -32,6 +33,11 @@ const menuItems = [
     title: "Localisations",
     href: "/admin/localisations",
     icon: MapPin,
+  },
+  {
+    title: "Déroulement du camp",
+    href: "/admin/camp-info",
+    icon: Calendar,
   }
 ]
 
