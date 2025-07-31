@@ -28,6 +28,23 @@ interface Country {
   dialCode: string;
 }
 
+interface Pays {
+  nom: string;
+  code: string;
+  dialCode: string;
+}
+
+// Fonctions utilitaires pour nettoyer les données
+const cleanPhoneNumber = (phone: string): string => {
+  // Supprimer tous les espaces, tirets, points et parenthèses
+  return phone.replace(/[\s\-\.\(\)]/g, '');
+};
+
+const cleanFullName = (name: string): string => {
+  // Supprimer les espaces en début/fin et remplacer les espaces multiples par un seul
+  return name.trim().replace(/\s+/g, ' ');
+};
+
 export const LoginForm = () => {
   const router = useRouter();
   const [loginMethod, setLoginMethod] = useState<'phone' | 'code'>('phone');
@@ -42,33 +59,264 @@ export const LoginForm = () => {
   const [errors, setErrors] = useState<FormErrors>({});
 
   // Liste des pays avec leurs indicatifs
-  const countries: Country[] = [
-    { name: 'Afghanistan', code: 'AF', dialCode: '+93' },
-    { name: 'Afrique du Sud', code: 'ZA', dialCode: '+27' },
-    { name: 'Algérie', code: 'DZ', dialCode: '+213' },
-    { name: 'Allemagne', code: 'DE', dialCode: '+49' },
-    { name: 'Canada', code: 'CA', dialCode: '+1' },
-    { name: 'Cameroun', code: 'CM', dialCode: '+237' },
-    { name: 'Côte d\'Ivoire', code: 'CI', dialCode: '+225' },
-    { name: 'Chine', code: 'CN', dialCode: '+86' },
-    { name: 'Espagne', code: 'ES', dialCode: '+34' },
-    { name: 'États-Unis', code: 'US', dialCode: '+1' },
-    { name: 'France', code: 'FR', dialCode: '+33' },
-    { name: 'Gabon', code: 'GA', dialCode: '+241' },
-    { name: 'Ghana', code: 'GH', dialCode: '+233' },
-    { name: 'Guinée', code: 'GN', dialCode: '+224' },
-    { name: 'Italie', code: 'IT', dialCode: '+39' },
-    { name: 'Mali', code: 'ML', dialCode: '+223' },
-    { name: 'Maroc', code: 'MA', dialCode: '+212' },
-    { name: 'Niger', code: 'NE', dialCode: '+227' },
-    { name: 'Nigeria', code: 'NG', dialCode: '+234' },
-    { name: 'Royaume-Uni', code: 'GB', dialCode: '+44' },
-    { name: 'Sénégal', code: 'SN', dialCode: '+221' },
-    { name: 'Suisse', code: 'CH', dialCode: '+41' },
-    { name: 'Tchad', code: 'TD', dialCode: '+235' },
-    { name: 'Togo', code: 'TG', dialCode: '+228' },
-    { name: 'Tunisie', code: 'TN', dialCode: '+216' }
+  const pays: Pays[] = [
+    { nom: 'Afghanistan', code: 'AF', dialCode: '+93' },
+    { nom: 'Albanie', code: 'AL', dialCode: '+355' },
+    { nom: 'Algérie', code: 'DZ', dialCode: '+213' },
+    { nom: 'Samoa américaines', code: 'AS', dialCode: '+1-684' },
+    { nom: 'Andorre', code: 'AD', dialCode: '+376' },
+    { nom: 'Angola', code: 'AO', dialCode: '+244' },
+    { nom: 'Anguilla', code: 'AI', dialCode: '+1-264' },
+    { nom: 'Antarctique', code: 'AQ', dialCode: '' },
+    { nom: 'Antigua-et-Barbuda', code: 'AG', dialCode: '+1-268' },
+    { nom: 'Argentine', code: 'AR', dialCode: '+54' },
+    { nom: 'Arménie', code: 'AM', dialCode: '+374' },
+    { nom: 'Aruba', code: 'AW', dialCode: '+297' },
+    { nom: 'Australie', code: 'AU', dialCode: '+61' },
+    { nom: 'Autriche', code: 'AT', dialCode: '+43' },
+    { nom: 'Azerbaïdjan', code: 'AZ', dialCode: '+994' },
+    { nom: 'Bahamas', code: 'BS', dialCode: '+1-242' },
+    { nom: 'Bahreïn', code: 'BH', dialCode: '+973' },
+    { nom: 'Bangladesh', code: 'BD', dialCode: '+880' },
+    { nom: 'Barbade', code: 'BB', dialCode: '+1-246' },
+    { nom: 'Biélorussie', code: 'BY', dialCode: '+375' },
+    { nom: 'Belgique', code: 'BE', dialCode: '+32' },
+    { nom: 'Belize', code: 'BZ', dialCode: '+501' },
+    { nom: 'Bénin', code: 'BJ', dialCode: '+229' },
+    { nom: 'Bermudes', code: 'BM', dialCode: '+1-441' },
+    { nom: 'Bhoutan', code: 'BT', dialCode: '+975' },
+    { nom: 'Bolivie, État plurinational de', code: 'BO', dialCode: '+591' },
+    { nom: 'Bonaire, Saint-Eustache et Saba', code: 'BQ', dialCode: '+599' },
+    { nom: 'Bosnie-Herzégovine', code: 'BA', dialCode: '+387' },
+    { nom: 'Botswana', code: 'BW', dialCode: '+267' },
+    { nom: 'Île Bouvet', code: 'BV', dialCode: '' },
+    { nom: 'Brésil', code: 'BR', dialCode: '+55' },
+    { nom: 'Territoire britannique de l\'océan Indien', code: 'IO', dialCode: '+246' },
+    { nom: 'Brunéi Darussalam', code: 'BN', dialCode: '+673' },
+    { nom: 'Bulgarie', code: 'BG', dialCode: '+359' },
+    { nom: 'Burkina Faso', code: 'BF', dialCode: '+226' },
+    { nom: 'Burundi', code: 'BI', dialCode: '+257' },
+    { nom: 'Cap-Vert', code: 'CV', dialCode: '+238' },
+    { nom: 'Cambodge', code: 'KH', dialCode: '+855' },
+    { nom: 'Cameroun', code: 'CM', dialCode: '+237' },
+    { nom: 'Canada', code: 'CA', dialCode: '+1' },
+    { nom: 'Îles Caïmans', code: 'KY', dialCode: '+1-345' },
+    { nom: 'République centrafricaine', code: 'CF', dialCode: '+236' },
+    { nom: 'Tchad', code: 'TD', dialCode: '+235' },
+    { nom: 'Chili', code: 'CL', dialCode: '+56' },
+    { nom: 'Chine', code: 'CN', dialCode: '+86' },
+    { nom: 'Île Christmas', code: 'CX', dialCode: '+61' },
+    { nom: 'Îles Cocos (Keeling)', code: 'CC', dialCode: '+61' },
+    { nom: 'Colombie', code: 'CO', dialCode: '+57' },
+    { nom: 'Comores', code: 'KM', dialCode: '+269' },
+    { nom: 'Congo', code: 'CG', dialCode: '+242' },
+    { nom: 'Congo, République démocratique du', code: 'CD', dialCode: '+243' },
+    { nom: 'Îles Cook', code: 'CK', dialCode: '+682' },
+    { nom: 'Costa Rica', code: 'CR', dialCode: '+506' },
+    { nom: 'Croatie', code: 'HR', dialCode: '+385' },
+    { nom: 'Cuba', code: 'CU', dialCode: '+53' },
+    { nom: 'Curaçao', code: 'CW', dialCode: '+599' },
+    { nom: 'Chypre', code: 'CY', dialCode: '+357' },
+    { nom: 'Tchéquie', code: 'CZ', dialCode: '+420' },
+    { nom: 'Côte d\'Ivoire', code: 'CI', dialCode: '+225' },
+    { nom: 'Danemark', code: 'DK', dialCode: '+45' },
+    { nom: 'Djibouti', code: 'DJ', dialCode: '+253' },
+    { nom: 'Dominique', code: 'DM', dialCode: '+1-767' },
+    { nom: 'République dominicaine', code: 'DO', dialCode: '+1-809' },
+    { nom: 'Équateur', code: 'EC', dialCode: '+593' },
+    { nom: 'Égypte', code: 'EG', dialCode: '+20' },
+    { nom: 'El Salvador', code: 'SV', dialCode: '+503' },
+    { nom: 'Guinée équatoriale', code: 'GQ', dialCode: '+240' },
+    { nom: 'Érythrée', code: 'ER', dialCode: '+291' },
+    { nom: 'Estonie', code: 'EE', dialCode: '+372' },
+    { nom: 'Eswatini', code: 'SZ', dialCode: '+268' },
+    { nom: 'Éthiopie', code: 'ET', dialCode: '+251' },
+    { nom: 'Îles Falkland (Malvinas)', code: 'FK', dialCode: '' },
+    { nom: 'Îles Féroé', code: 'FO', dialCode: '' },
+    { nom: 'Fidji', code: 'FJ', dialCode: '+679' },
+    { nom: 'Finlande', code: 'FI', dialCode: '+358' },
+    { nom: 'France', code: 'FR', dialCode: '+33' },
+    { nom: 'Guyane française', code: 'GF', dialCode: '+594' },
+    { nom: 'Polynésie française', code: 'PF', dialCode: '+689' },
+    { nom: 'Terres australes françaises', code: 'TF', dialCode: '' },
+    { nom: 'Gabon', code: 'GA', dialCode: '+241' },
+    { nom: 'Gambie', code: 'GM', dialCode: '+220' },
+    { nom: 'Géorgie', code: 'GE', dialCode: '+995' },
+    { nom: 'Allemagne', code: 'DE', dialCode: '+49' },
+    { nom: 'Ghana', code: 'GH', dialCode: '+233' },
+    { nom: 'Gibraltar', code: 'GI', dialCode: '+350' },
+    { nom: 'Grèce', code: 'GR', dialCode: '+30' },
+    { nom: 'Groenland', code: 'GL', dialCode: '+299' },
+    { nom: 'Grenade', code: 'GD', dialCode: '+1-473' },
+    { nom: 'Guadeloupe', code: 'GP', dialCode: '+590' },
+    { nom: 'Guam', code: 'GU', dialCode: '+1-671' },
+    { nom: 'Guatemala', code: 'GT', dialCode: '+502' },
+    { nom: 'Guernesey', code: 'GG', dialCode: '+44' },
+    { nom: 'Guinée', code: 'GN', dialCode: '+224' },
+    { nom: 'Guinée-Bissau', code: 'GW', dialCode: '+245' },
+    { nom: 'Guyane', code: 'GY', dialCode: '+592' },
+    { nom: 'Haïti', code: 'HT', dialCode: '+509' },
+    { nom: 'Îles Heard et McDonald', code: 'HM', dialCode: '' },
+    { nom: 'Saint-Siège (État de la Cité du Vatican)', code: 'VA', dialCode: '+379' },
+    { nom: 'Honduras', code: 'HN', dialCode: '+504' },
+    { nom: 'Hong Kong', code: 'HK', dialCode: '+852' },
+    { nom: 'Hongrie', code: 'HU', dialCode: '+36' },
+    { nom: 'Islande', code: 'IS', dialCode: '+354' },
+    { nom: 'Inde', code: 'IN', dialCode: '+91' },
+    { nom: 'Indonésie', code: 'ID', dialCode: '+62' },
+    { nom: 'Iran, République islamique d\'', code: 'IR', dialCode: '+98' },
+    { nom: 'Irak', code: 'IQ', dialCode: '+964' },
+    { nom: 'Irlande', code: 'IE', dialCode: '+353' },
+    { nom: 'Île de Man', code: 'IM', dialCode: '+44' },
+    { nom: 'Israël', code: 'IL', dialCode: '+972' },
+    { nom: 'Italie', code: 'IT', dialCode: '+39' },
+    { nom: 'Jamaïque', code: 'JM', dialCode: '+1-876' },
+    { nom: 'Japon', code: 'JP', dialCode: '+81' },
+    { nom: 'Jersey', code: 'JE', dialCode: '+44' },
+    { nom: 'Jordanie', code: 'JO', dialCode: '+962' },
+    { nom: 'Kazakhstan', code: 'KZ', dialCode: '+7' },
+    { nom: 'Kenya', code: 'KE', dialCode: '+254' },
+    { nom: 'Kiribati', code: 'KI', dialCode: '+686' },
+    { nom: 'Corée, République populaire démocratique de', code: 'KP', dialCode: '+850' },
+    { nom: 'Corée, République de', code: 'KR', dialCode: '+82' },
+    { nom: 'Koweït', code: 'KW', dialCode: '+965' },
+    { nom: 'Kirghizistan', code: 'KG', dialCode: '+996' },
+    { nom: 'République démocratique populaire lao', code: 'LA', dialCode: '+856' },
+    { nom: 'Lettonie', code: 'LV', dialCode: '+371' },
+    { nom: 'Liban', code: 'LB', dialCode: '+961' },
+    { nom: 'Lesotho', code: 'LS', dialCode: '+266' },
+    { nom: 'Libéria', code: 'LR', dialCode: '+231' },
+    { nom: 'Libye', code: 'LY', dialCode: '+218' },
+    { nom: 'Liechtenstein', code: 'LI', dialCode: '+423' },
+    { nom: 'Lituanie', code: 'LT', dialCode: '+370' },
+    { nom: 'Luxembourg', code: 'LU', dialCode: '+352' },
+    { nom: 'Macao', code: 'MO', dialCode: '+853' },
+    { nom: 'Madagascar', code: 'MG', dialCode: '+261' },
+    { nom: 'Malawi', code: 'MW', dialCode: '+265' },
+    { nom: 'Malaisie', code: 'MY', dialCode: '+60' },
+    { nom: 'Maldives', code: 'MV', dialCode: '+960' },
+    { nom: 'Mali', code: 'ML', dialCode: '+223' },
+    { nom: 'Malte', code: 'MT', dialCode: '+356' },
+    { nom: 'Îles Marshall', code: 'MH', dialCode: '+692' },
+    { nom: 'Martinique', code: 'MQ', dialCode: '+596' },
+    { nom: 'Mauritanie', code: 'MR', dialCode: '+222' },
+    { nom: 'Maurice', code: 'MU', dialCode: '+230' },
+    { nom: 'Mayotte', code: 'YT', dialCode: '+262' },
+    { nom: 'Mexique', code: 'MX', dialCode: '+52' },
+    { nom: 'Micronésie, États fédérés de', code: 'FM', dialCode: '+691' },
+    { nom: 'Moldavie, République de', code: 'MD', dialCode: '+373' },
+    { nom: 'Monaco', code: 'MC', dialCode: '+377' },
+    { nom: 'Mongolie', code: 'MN', dialCode: '+976' },
+    { nom: 'Monténégro', code: 'ME', dialCode: '+382' },
+    { nom: 'Montserrat', code: 'MS', dialCode: '+1-664' },
+    { nom: 'Maroc', code: 'MA', dialCode: '+212' },
+    { nom: 'Mozambique', code: 'MZ', dialCode: '+258' },
+    { nom: 'Myanmar', code: 'MM', dialCode: '+95' },
+    { nom: 'Namibie', code: 'NA', dialCode: '+264' },
+    { nom: 'Nauru', code: 'NR', dialCode: '+674' },
+    { nom: 'Népal', code: 'NP', dialCode: '+977' },
+    { nom: 'Pays-Bas', code: 'NL', dialCode: '+31' },
+    { nom: 'Nouvelle-Calédonie', code: 'NC', dialCode: '+687' },
+    { nom: 'Nouvelle-Zélande', code: 'NZ', dialCode: '+64' },
+    { nom: 'Nicaragua', code: 'NI', dialCode: '+505' },
+    { nom: 'Niger', code: 'NE', dialCode: '+227' },
+    { nom: 'Nigeria', code: 'NG', dialCode: '+234' },
+    { nom: 'Niue', code: 'NU', dialCode: '+683' },
+    { nom: 'Île Norfolk', code: 'NF', dialCode: '+672' },
+    { nom: 'Macédoine du Nord', code: 'MK', dialCode: '+389' },
+    { nom: 'Îles Mariannes du Nord', code: 'MP', dialCode: '+1-670' },
+    { nom: 'Norvège', code: 'NO', dialCode: '+47' },
+    { nom: 'Oman', code: 'OM', dialCode: '+968' },
+    { nom: 'Pakistan', code: 'PK', dialCode: '+92' },
+    { nom: 'Palau', code: 'PW', dialCode: '+680' },
+    { nom: 'Palestine, État de', code: 'PS', dialCode: '+970' },
+    { nom: 'Panama', code: 'PA', dialCode: '+507' },
+    { nom: 'Papouasie-Nouvelle-Guinée', code: 'PG', dialCode: '+675' },
+    { nom: 'Paraguay', code: 'PY', dialCode: '+595' },
+    { nom: 'Pérou', code: 'PE', dialCode: '+51' },
+    { nom: 'Philippines', code: 'PH', dialCode: '+63' },
+    { nom: 'Pitcairn', code: 'PN', dialCode: '' },
+    { nom: 'Pologne', code: 'PL', dialCode: '+48' },
+    { nom: 'Portugal', code: 'PT', dialCode: '+351' },
+    { nom: 'Porto Rico', code: 'PR', dialCode: '+1-787' },
+    { nom: 'Qatar', code: 'QA', dialCode: '+974' },
+    { nom: 'Roumanie', code: 'RO', dialCode: '+40' },
+    { nom: 'Fédération de Russie', code: 'RU', dialCode: '+7' },
+    { nom: 'Rwanda', code: 'RW', dialCode: '+250' },
+    { nom: 'Réunion', code: 'RE', dialCode: '+262' },
+    { nom: 'Saint Barthélemy', code: 'BL', dialCode: '+590' },
+    { nom: 'Sainte-Hélène, Ascension et Tristan da Cunha', code: 'SH', dialCode: '+290' },
+    { nom: 'Saint-Kitts-et-Nevis', code: 'KN', dialCode: '+1-869' },
+    { nom: 'Sainte-Lucie', code: 'LC', dialCode: '+1-758' },
+    { nom: 'Saint Martin (partie française)', code: 'MF', dialCode: '+590' },
+    { nom: 'Saint Pierre et Miquelon', code: 'PM', dialCode: '+508' },
+    { nom: 'Saint-Vincent-et-les Grenadines', code: 'VC', dialCode: '+1-784' },
+    { nom: 'Samoa', code: 'WS', dialCode: '+685' },
+    { nom: 'Saint-Marin', code: 'SM', dialCode: '+378' },
+    { nom: 'Sao Tomé-et-Principe', code: 'ST', dialCode: '+239' },
+    { nom: 'Arabie Saoudite', code: 'SA', dialCode: '+966' },
+    { nom: 'Sénégal', code: 'SN', dialCode: '+221' },
+    { nom: 'Serbie', code: 'RS', dialCode: '+381' },
+    { nom: 'Seychelles', code: 'SC', dialCode: '+248' },
+    { nom: 'Sierra Leone', code: 'SL', dialCode: '+232' },
+    { nom: 'Singapour', code: 'SG', dialCode: '+65' },
+    { nom: 'Sint Maarten (partie néerlandaise)', code: 'SX', dialCode: '+1-721' },
+    { nom: 'Slovaquie', code: 'SK', dialCode: '+421' },
+    { nom: 'Slovénie', code: 'SI', dialCode: '+386' },
+    { nom: 'Îles Salomon', code: 'SB', dialCode: '+677' },
+    { nom: 'Somalie', code: 'SO', dialCode: '+252' },
+    { nom: 'Afrique du Sud', code: 'ZA', dialCode: '+27' },
+    { nom: 'Géorgie du Sud et îles Sandwich du Sud', code: 'GS', dialCode: '' },
+    { nom: 'Soudan du Sud', code: 'SS', dialCode: '+211' },
+    { nom: 'Espagne', code: 'ES', dialCode: '+34' },
+    { nom: 'Sri Lanka', code: 'LK', dialCode: '+94' },
+    { nom: 'Soudan', code: 'SD', dialCode: '+249' },
+    { nom: 'Suriname', code: 'SR', dialCode: '+597' },
+    { nom: 'Svalbard et Jan Mayen', code: 'SJ', dialCode: '' },
+    { nom: 'Suède', code: 'SE', dialCode: '+46' },
+    { nom: 'Suisse', code: 'CH', dialCode: '+41' },
+    { nom: 'République arabe syrienne', code: 'SY', dialCode: '+963' },
+    { nom: 'Taïwan, province de Chine', code: 'TW', dialCode: '+886' },
+    { nom: 'Tadjikistan', code: 'TJ', dialCode: '+992' },
+    { nom: 'Tanzanie, République-Unie de', code: 'TZ', dialCode: '+255' },
+    { nom: 'Thaïlande', code: 'TH', dialCode: '+66' },
+    { nom: 'Timor-Leste', code: 'TL', dialCode: '+670' },
+    { nom: 'Togo', code: 'TG', dialCode: '+228' },
+    { nom: 'Tokelau', code: 'TK', dialCode: '+690' },
+    { nom: 'Tonga', code: 'TO', dialCode: '+676' },
+    { nom: 'Trinité-et-Tobago', code: 'TT', dialCode: '+1-868' },
+    { nom: 'Tunisie', code: 'TN', dialCode: '+216' },
+    { nom: 'Turquie', code: 'TR', dialCode: '+90' },
+    { nom: 'Turkménistan', code: 'TM', dialCode: '+993' },
+    { nom: 'Îles Turques-et-Caïques', code: 'TC', dialCode: '+1-649' },
+    { nom: 'Tuvalu', code: 'TV', dialCode: '+688' },
+    { nom: 'Ouganda', code: 'UG', dialCode: '+256' },
+    { nom: 'Ukraine', code: 'UA', dialCode: '+380' },
+    { nom: 'Émirats arabes unis', code: 'AE', dialCode: '+971' },
+    { nom: 'Royaume-Uni', code: 'GB', dialCode: '+44' },
+    { nom: 'États-Unis', code: 'US', dialCode: '+1' },
+    { nom: 'Îles mineures éloignées des États-Unis', code: 'UM', dialCode: '' },
+    { nom: 'Uruguay', code: 'UY', dialCode: '+598' },
+    { nom: 'Ouzbékistan', code: 'UZ', dialCode: '+998' },
+    { nom: 'Vanuatu', code: 'VU', dialCode: '+678' },
+    { nom: 'Venezuela, République bolivarienne du', code: 'VE', dialCode: '+58' },
+    { nom: 'Viet Nam', code: 'VN', dialCode: '+84' },
+    { nom: 'Îles Vierges britanniques', code: 'VG', dialCode: '+1-284' },
+    { nom: 'Îles Vierges américaines', code: 'VI', dialCode: '+1-340' },
+    { nom: 'Wallis et Futuna', code: 'WF', dialCode: '' },
+    { nom: 'Sahara Occidental', code: 'EH', dialCode: '+212' },
+    { nom: 'Yémen', code: 'YE', dialCode: '+967' },
+    { nom: 'Zambie', code: 'ZM', dialCode: '+260' },
+    { nom: 'Zimbabwe', code: 'ZW', dialCode: '+263' },
+    { nom: 'Îles Åland', code: 'AX', dialCode: '' },
   ];
+
+  // Convert pays to countries format for compatibility
+  const countries: Country[] = pays.map(p => ({
+    name: p.nom,
+    code: p.code,
+    dialCode: p.dialCode
+  }));
 
   // Trouver le pays sélectionné
   const getSelectedCountryData = (): Country | undefined => {
@@ -98,6 +346,54 @@ export const LoginForm = () => {
     setErrors({});
   };
 
+  // Fonction pour valider le numéro de téléphone en temps réel
+  const validatePhoneInput = (input: string, countryDialCode?: string): { isValid: boolean; error?: string } => {
+    // Nettoyer l'entrée (supprimer espaces et caractères spéciaux)
+    const cleanInput = input.replace(/[^\d]/g, '');
+    
+    // Vérifier si vide
+    if (!cleanInput) {
+      return { isValid: false, error: 'Le numéro de téléphone est requis' };
+    }
+    
+    // Vérifier la longueur minimale
+    if (cleanInput.length < 6) {
+      return { isValid: false, error: 'Le numéro doit contenir au moins 6 chiffres' };
+    }
+    
+    // Vérifier la longueur maximale
+    if (cleanInput.length > 15) {
+      return { isValid: false, error: 'Le numéro ne peut pas dépasser 15 chiffres' };
+    }
+    
+    // Validation spécifique selon le pays
+    if (countryDialCode) {
+      switch (countryDialCode) {
+        case '+33': // France
+          if (cleanInput.length !== 9) {
+            return { isValid: false, error: 'Le numéro français doit contenir 9 chiffres' };
+          }
+          break;
+        case '+237': // Cameroun
+          if (cleanInput.length !== 9) {
+            return { isValid: false, error: 'Le numéro camerounais doit contenir 9 chiffres' };
+          }
+          break;
+        case '+1': // USA/Canada
+          if (cleanInput.length !== 10) {
+            return { isValid: false, error: 'Le numéro doit contenir 10 chiffres' };
+          }
+          break;
+        default:
+          if (cleanInput.length < 7 || cleanInput.length > 12) {
+            return { isValid: false, error: 'Le numéro doit contenir entre 7 et 12 chiffres' };
+          }
+      }
+    }
+    
+    return { isValid: true };
+  };
+
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
@@ -109,10 +405,11 @@ export const LoginForm = () => {
       if (!getSelectedCountryData()) {
         newErrors.country = 'Veuillez sélectionner un pays';
       }
-      if (!phoneNumber.trim()) {
-        newErrors.phoneNumber = 'Le numéro de téléphone est requis';
-      } else if (!/^\d+$/.test(phoneNumber)) {
-        newErrors.phoneNumber = 'Le numéro doit contenir uniquement des chiffres';
+      
+      // Utiliser la nouvelle validation
+      const phoneValidation = validatePhoneInput(phoneNumber, getSelectedCountryData()?.dialCode);
+      if (!phoneValidation.isValid) {
+        newErrors.phoneNumber = phoneValidation.error;
       }
     } else {
       if (!myibcCode.trim()) {
@@ -140,8 +437,10 @@ export const LoginForm = () => {
       if (loginMethod === 'phone') {
         // Connexion par téléphone + mot de passe
         const selectedCountryData = getSelectedCountryData();
+        // Nettoyer le numéro de téléphone avant de l'envoyer
+        const cleanedPhoneNumber = cleanPhoneNumber(phoneNumber);
         const fullPhoneNumber = selectedCountryData ? 
-          `${selectedCountryData.dialCode} ${phoneNumber}` : phoneNumber;
+          `${selectedCountryData.dialCode} ${cleanedPhoneNumber}` : cleanedPhoneNumber;
         
         response = await axiosInstance.post('/auth/login/telephone', {
           telephone: fullPhoneNumber,
@@ -150,8 +449,11 @@ export const LoginForm = () => {
         });
       } else {
         // Connexion par code MyIBC + mot de passe
+        // Nettoyer le code MyIBC (supprimer les espaces)
+        const cleanedCode = myibcCode.trim().replace(/\s+/g, '');
+        
         response = await axiosInstance.post('/auth/login/code', {
-          code: myibcCode.trim(),
+          code: cleanedCode,
           password
         });
       }
@@ -304,8 +606,43 @@ export const LoginForm = () => {
                   type="tel"
                   value={phoneNumber}
                   onChange={(e) => {
-                    setPhoneNumber(e.target.value);
-                    if (errors.phoneNumber) setErrors(prev => ({ ...prev, phoneNumber: '' }));
+                    const inputValue = e.target.value;
+                    
+                    // Nettoyer automatiquement l'entrée
+                    const cleanedValue = inputValue.replace(/[^\d]/g, '');
+                    
+                    // Validation en temps réel
+                    const validation = validatePhoneInput(cleanedValue, selectedCountryData?.dialCode);
+                    
+                    // Mettre à jour la valeur
+                    setPhoneNumber(cleanedValue);
+                    
+                    // Mettre à jour les erreurs
+                    if (!validation.isValid && cleanedValue.length > 0) {
+                      setErrors(prev => ({ ...prev, phoneNumber: validation.error }));
+                    } else {
+                      setErrors(prev => ({ ...prev, phoneNumber: '' }));
+                    }
+                    
+                    // Avertissement pour caractères supprimés
+                    if (inputValue !== cleanedValue && inputValue.length > 0) {
+                      setErrors(prev => ({ ...prev, phoneNumber: 'Seuls les chiffres sont autorisés' }));
+                      setTimeout(() => {
+                        setErrors(prev => {
+                          if (prev.phoneNumber === 'Seuls les chiffres sont autorisés') {
+                            const newValidation = validatePhoneInput(cleanedValue, selectedCountryData?.dialCode);
+                            return { ...prev, phoneNumber: newValidation.isValid ? '' : newValidation.error || '' };
+                          }
+                          return prev;
+                        });
+                      }, 2000);
+                    }
+                  }}
+                  onBlur={() => {
+                    const validation = validatePhoneInput(phoneNumber, selectedCountryData?.dialCode);
+                    if (!validation.isValid) {
+                      setErrors(prev => ({ ...prev, phoneNumber: validation.error }));
+                    }
                   }}
                   placeholder="Votre numéro"
                   className={`flex-1 px-4 py-3 border shadow-sm focus:outline-none focus:ring-2 focus:ring-myibc-blue focus:border-myibc-blue ${
@@ -317,15 +654,18 @@ export const LoginForm = () => {
                 <p className="mt-1 text-sm text-red-600">{errors.phoneNumber}</p>
               )}
               <p className="text-xs text-myibc-graytext mt-1">
-                Saisissez votre numéro sans l'indicatif pays
+                {selectedCountryData?.dialCode === '+33' ? 'Format: 123456789 (9 chiffres)' :
+                 selectedCountryData?.dialCode === '+237' ? 'Format: 123456789 (9 chiffres)' :
+                 selectedCountryData?.dialCode === '+1' ? 'Format: 1234567890 (10 chiffres)' :
+                 'Saisissez votre numéro sans l\'indicatif pays (chiffres uniquement)'}
               </p>
             </div>
 
             {/* Aperçu du numéro complet */}
-            {selectedCountryData && phoneNumber && (
+            {selectedCountryData && phoneNumber && !errors.phoneNumber && (
               <div className="bg-myibc-gold/10 border border-myibc-gold/30 rounded-lg p-3">
                 <p className="text-sm text-myibc-blue">
-                  <strong>Numéro complet:</strong> {selectedCountryData.dialCode}{phoneNumber}
+                  <strong>Numéro complet:</strong> {selectedCountryData.dialCode} {phoneNumber}
                 </p>
               </div>
             )}

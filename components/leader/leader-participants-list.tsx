@@ -34,21 +34,57 @@ import {
 interface Camp {
   type: string;
   prix: number;
+  trancheAge?: string;
+  description?: string;
+  participants?: number;
+  id: number;
+}
+
+interface Pays {
+  id: number;
+  name: string;
+  villes?: Ville[];
+}
+
+interface Ville {
+  id: number;
+  name: string;
+  delegations?: Delegation[];
+}
+
+interface Delegation {
+  id: number;
+  name: string;
+}
+
+interface Utilisateur {
+  id: number;
+  username: string;
+  password: string;
+  role: string;
+  pays: any;
+  telephone: any;
+  code: string;
+  campAgneauxAmount: number;
+  campFondationAmount: number;
+  campLeaderAmount: number;
 }
 
 interface Inscription {
   badge: boolean;
   id: number;
+  date: string;
   nomComplet: string;
   sexe: string;
   dateNaissance: string;
   telephone: string;
-  pays: string;
-  ville: string;
-  delegation: string;
+  pays: Pays | string; // Support both old and new structure
+  ville: Ville | string; // Support both old and new structure
+  delegation: Delegation | string; // Support both old and new structure
   camp: Camp;
   status?: "confirmed" | "pending";
   code: string;
+  utilisateur?: Utilisateur;
 }
 
 type Status = "confirmed" | "pending";
@@ -110,7 +146,7 @@ export function LeaderParticipantsList() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const storedCode = localStorage.getItem("code");
+      const storedCode = localStorage.getItem("code") || localStorage.getItem("tresorierCode");
       setCode(storedCode);
     }
   }, []);
@@ -147,19 +183,29 @@ export function LeaderParticipantsList() {
         // Vérifier que la réponse contient des données valides
         const data = Array.isArray(response.data) ? response.data : [];
 
-        const mapped: FormattedParticipant[] = data.map((i) => ({
-          id: i.id || 0,
-          name: i.nomComplet || 'Nom non défini',
-          gender: i.sexe || 'Non spécifié',
-          age: i.dateNaissance ? getAge(i.dateNaissance) : 0,
-          campType: i.camp?.type || 'Camp non défini',
-          phone: i.telephone || 'Non renseigné',
-          city: i.ville || 'Ville non renseignée',
-          status: i.status ?? "confirmed",
-          amount: i.camp?.prix ?? 0,
-          badge: Boolean(i.badge),
-          code: i.code || 'Code non défini',
-        }));
+        const mapped: FormattedParticipant[] = data.map((i) => {
+          // Helper function to extract string value from object or string
+          const extractValue = (value: any, defaultValue: string = 'Non défini'): string => {
+            if (!value) return defaultValue;
+            if (typeof value === 'string') return value;
+            if (typeof value === 'object' && value.name) return value.name;
+            return defaultValue;
+          };
+
+          return {
+            id: i.id || 0,
+            name: i.nomComplet || 'Nom non défini',
+            gender: i.sexe || 'Non spécifié',
+            age: i.dateNaissance ? getAge(i.dateNaissance) : 0,
+            campType: i.camp?.type || 'Camp non défini',
+            phone: i.telephone || 'Non renseigné',
+            city: extractValue(i.ville, 'Ville non renseignée'),
+            status: i.status ?? "confirmed",
+            amount: i.camp?.prix ?? 0,
+            badge: Boolean(i.badge),
+            code: i.code || 'Code non défini',
+          };
+        });
 
         setParticipants(mapped);
       } catch (error) {
@@ -279,10 +325,10 @@ export function LeaderParticipantsList() {
               <TableRow className="h-16">
                 <TableHead className="font-semibold text-base w-[180px] px-6">Nom</TableHead>
                 <TableHead className="font-semibold text-base w-[120px] px-4">Code</TableHead>
-                <TableHead className="font-semibold text-base w-[100px] px-4">Sexe</TableHead>
+                <TableHead className="font-semibold text-base w-[100px] px-4">Genre</TableHead>
                 <TableHead className="font-semibold text-base w-[140px] px-4">Téléphone</TableHead>
                 <TableHead className="font-semibold text-base w-[120px] px-4">Ville</TableHead>
-                <TableHead className="font-semibold text-base w-[140px] px-4">Camp</TableHead>
+                <TableHead className="font-semibold text-base w-[140px] px-4">Type de camp</TableHead>
                 <TableHead className="font-semibold text-base text-center w-[100px] px-4">Badge</TableHead>
               </TableRow>
             </TableHeader>

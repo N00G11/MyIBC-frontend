@@ -67,7 +67,7 @@ export const TresoriersList = forwardRef(function TresoriersList(props, ref) {
   const handleDelete = async (id: number) => {
     if (!confirm("Voulez-vous vraiment supprimer ce trésorier ?")) return;
     try {
-      await axiosInstance.delete(`/tresorier/delete/${id}`);
+      await axiosInstance.delete(`/tresoriers/${id}`);
       fetchTresoriers();
     } catch (err) {
       console.error("Erreur lors de la suppression :", err);

@@ -13,10 +13,10 @@ export default function TresorierPayementsPage() {
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-[#001F5B] mb-2">
-              Gestion des paiements
+              Suivi des paiements participants
             </h1>
             <p className="text-gray-600">
-              Interface de gestion des paiements pour les trésoriers
+              Espace dédié à la gestion des paiements pour les trésoriers
             </p>
           </div>
           

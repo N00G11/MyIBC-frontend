@@ -23,29 +23,57 @@ import axiosInstance from "@/components/request/reques";
 import { usePagination } from "@/hooks/use-pagination";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
 
+interface Pays {
+  id: number;
+  name: string;
+  villes?: Ville[];
+}
+
+interface Ville {
+  id: number;
+  name: string;
+  delegations?: Delegation[];
+}
+
+interface Delegation {
+  id: number;
+  name: string;
+}
+
+interface Utilisateur {
+  id: number;
+  username: string;
+  password: string;
+  role: string;
+  pays: any;
+  telephone: any;
+  code: string;
+  campAgneauxAmount: number;
+  campFondationAmount: number;
+  campLeaderAmount: number;
+}
+
 type Inscription = {
   id: number;
   date: string;
-  nom: string;
-  prenom: string;
+  nomComplet: string;
   sexe: string;
   telephone: string;
   dateNaissance: string;
-  pays: string;
-  ville: string;
-  delegation: string;
+  pays: Pays | string; // Support both old and new structure
+  ville: Ville | string; // Support both old and new structure
+  delegation: Delegation | string; // Support both old and new structure
   code: string;
   badge: boolean;
   camp: {
     id: number;
     type: string;
     prix: number;
+    trancheAge?: string;
+    description?: string;
+    participants?: number;
   };
-  utilisateur: {
-    id: number;
-    username: string;
-    email: string;
-  };
+  utilisateur: Utilisateur;
 };
 
 export function InscriptionsList() {
@@ -111,12 +139,20 @@ export function InscriptionsList() {
   const filtered = inscriptions.filter((ins) => {
     if (!searchTerm.trim()) return true;
     
+    // Helper function to extract string value from object or string
+    const extractValue = (value: any): string => {
+      if (!value) return '';
+      if (typeof value === 'string') return value;
+      if (typeof value === 'object' && value.name) return value.name;
+      return '';
+    };
+    
     const searchTermLower = searchTerm.toLowerCase();
-    const nomComplet = `${ins.nom || ''} ${ins.prenom || ''}`.toLowerCase();
+    const nomComplet = (ins.nomComplet || '').toLowerCase();
     const telephone = (ins.telephone || '').toLowerCase();
-    const pays = (ins.pays || '').toLowerCase();
-    const ville = (ins.ville || '').toLowerCase();
-    const delegation = (ins.delegation || '').toLowerCase();
+    const pays = extractValue(ins.pays).toLowerCase();
+    const ville = extractValue(ins.ville).toLowerCase();
+    const delegation = extractValue(ins.delegation).toLowerCase();
     const campType = (ins.camp?.type || '').toLowerCase();
     const utilisateur = (ins.utilisateur?.username || '').toLowerCase();
     const code = (ins.code || '').toLowerCase();
@@ -149,6 +185,12 @@ export function InscriptionsList() {
     initialPageSize: 10,
   });
 
+  const extractValue = (value: any): string => {
+    if (!value) return '';
+    if (typeof value === 'string') return value;
+    if (typeof value === 'object' && value.name) return value.name;
+    return '';
+  };
   return (
     <Card>
       <CardHeader className="flex flex-col md:flex-row items-center justify-between">
@@ -185,7 +227,7 @@ export function InscriptionsList() {
                 <TableHead>Type de camp</TableHead>
                 <TableHead>Pays</TableHead>
                 <TableHead>Ville</TableHead>
-                <TableHead>Localitée</TableHead>
+                <TableHead>Localité</TableHead>
                 <TableHead>Utilisateur</TableHead>
                 <TableHead>Badge</TableHead>
                 <TableHead className="w-[80px]"></TableHead>
@@ -202,7 +244,7 @@ export function InscriptionsList() {
                 paginatedData.map((ins) => (
                   <TableRow key={ins.id}>
                     <TableCell className="font-medium">
-                      {`${ins.nom || ''} ${ins.prenom || ''}`.trim() || 'Nom non défini'}
+                      {ins.nomComplet || 'Nom non défini'}
                     </TableCell>
                     <TableCell>
                       <Badge 
@@ -220,9 +262,9 @@ export function InscriptionsList() {
                         {ins.camp?.type || 'Camp non défini'}
                       </Badge>
                     </TableCell>
-                    <TableCell>{ins.pays || 'Non renseigné'}</TableCell>
-                    <TableCell>{ins.ville || 'Non renseignée'}</TableCell>
-                    <TableCell>{ins.delegation || 'Non renseignée'}</TableCell>
+                    <TableCell>{extractValue(ins.pays) || 'Non renseigné'}</TableCell>
+                    <TableCell>{extractValue(ins.ville) || 'Non renseignée'}</TableCell>
+                    <TableCell>{extractValue(ins.delegation) || 'Non renseignée'}</TableCell>
                     <TableCell>{ins.utilisateur?.username || 'Non assigné'}</TableCell>
                     <TableCell>
                       {ins.badge ? (

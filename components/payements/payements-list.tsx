@@ -100,7 +100,7 @@ export function PayementsList() {
       {/* Header avec statistiques */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="font-semibold text-lg mb-1">Liste des paiements</h2>
+          <h2 className="font-semibold text-lg mb-1">Historique des paiements enregistrés</h2>
           <p className="text-sm text-gray-600">
             {filteredPayements.length} paiement{filteredPayements.length !== 1 ? 's' : ''} trouvé{filteredPayements.length !== 1 ? 's' : ''}
             {searchTerm && ` pour "${searchTerm}"`}
@@ -140,7 +140,7 @@ export function PayementsList() {
                   <TableHead className="font-semibold">Nom complet</TableHead>
                   <TableHead className="font-semibold">Téléphone</TableHead>
                   <TableHead className="font-semibold">Pays</TableHead>
-                  <TableHead className="font-semibold">Camp</TableHead>
+                  <TableHead className="font-semibold">Type de camp</TableHead>
                   <TableHead className="font-semibold">Montant</TableHead>
                   <TableHead className="font-semibold">Code Trésorier</TableHead>
                   <TableHead className="font-semibold">Date</TableHead>

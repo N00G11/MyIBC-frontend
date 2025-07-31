@@ -19,8 +19,8 @@ interface Camp {
 }
 
 interface UserCampAmounts {
-  CampFondationAmount: number;
-  campJeuneAmount: number;
+  campAgneauxAmount: number;
+  campFondationAmount: number;
   campLeaderAmount: number;
 }
 
@@ -44,7 +44,7 @@ export function LeaderCampDistribution() {
   useEffect(() => {
     // S'assurer que l'on est côté client avant d'utiliser localStorage
     setIsClient(true);
-    const storedCode = typeof window !== "undefined" ? localStorage.getItem("code") : null;
+    const storedCode = typeof window !== "undefined" ? localStorage.getItem("code") || localStorage.getItem("tresorierCode") : null;
     if (storedCode) {
       setCode(storedCode);
     }
@@ -65,8 +65,8 @@ export function LeaderCampDistribution() {
 
         // Mapping des types de camps aux montants
         const campAmountMapping: { [key: string]: number } = {
-          "Camp de la Fondation": userAmounts.CampFondationAmount,
-          "Camp des Jeunes": userAmounts.campJeuneAmount,
+          "Camp des Agneaux": userAmounts.campAgneauxAmount,
+          "Camp de la Fondation": userAmounts.campFondationAmount,
           "Camp des Leaders": userAmounts.campLeaderAmount,
         };
 
@@ -114,9 +114,9 @@ export function LeaderCampDistribution() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Répartition de mes payements</CardTitle>
+        <CardTitle>État de mes inscriptions par type de camp</CardTitle>
         <CardDescription>
-          Distribution et montants par type de camp
+          Détail des inscriptions et paiements en attente
         </CardDescription>
       </CardHeader>
       <CardContent>

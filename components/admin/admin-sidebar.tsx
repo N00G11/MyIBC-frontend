@@ -5,7 +5,7 @@ export function AdminSidebar() {
   return (
     <aside className="hidden md:flex md:w-64 flex-col bg-[#001F5B] text-white">
       <div className="p-4 border-b border-blue-900 flex justify-center">
-        <CmciLogo className="h-12 w-auto" />
+      {/* <CmciLogo  /> */}  
       </div>
       <AdminSidebarContent />
     </aside>

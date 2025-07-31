@@ -109,7 +109,7 @@ export function CampsTotals() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <TrendingUp className="h-5 w-5 text-[#D4AF37]" />
-          Montants totaux par camp
+          Récapitulatif des montants collectés par camp
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -200,12 +200,6 @@ export function CampsTotals() {
                       {totalAmount.toLocaleString()}
                     </p>
                     <p className="text-sm text-gray-500">FCFA collectés</p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      {totalAmount > 0 && camp.prix > 0 
-                        ? `${Math.round(totalAmount / camp.prix)} paiements effectués`
-                        : "Aucun paiement"
-                      }
-                    </p>
                   </div>
                 </div>
               </div>

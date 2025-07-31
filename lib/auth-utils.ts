@@ -144,6 +144,7 @@ export function validateAuthResponse(data: any): AuthResponse {
 export function saveAuthData(authData: AuthResponse, personalCode?: string): void {
   try {
     localStorage.setItem('token', authData.token);
+    localStorage.setItem('role', authData.role);
     
     // Déterminer le nom de la clé pour le code selon le rôle
     const codeKey = authData.role === 'ROLE_TRESORIER' ? 'tresorierCode' : 'code';
@@ -169,18 +170,18 @@ export function saveAuthData(authData: AuthResponse, personalCode?: string): voi
 /**
  * Détermine la route de redirection basée sur le rôle
  */
-export function getRedirectPath(role: string): string {
+export const getRedirectPath = (role: string): string => {
   switch (role) {
-    case 'ROLE_UTILISATEUR':
-      return '/utilisateur/dashboard';
-    case 'ROLE_TRESORIER':
-      return '/tresoriers';
     case 'ROLE_ADMIN':
-      return '/admin/dashboard';
+      return '/dashboard-selection';
+    case 'ROLE_TRESORIER':
+      return '/dashboard-selection';
+    case 'ROLE_UTILISATEUR':
+      return 'utilisateur/dashboard';
     default:
-      return '/admin/dashboard';
+      return '/dashboard';
   }
-}
+};
 
 /**
  * Récupère le code utilisateur depuis le localStorage selon le rôle

@@ -12,7 +12,7 @@ export default function RegisterPage() {
           Créer un compte MyIBC
         </h2>
         <p className="mt-2 text-center text-sm text-myibc-graytext">
-          Rejoignez la communauté MyIBC
+          S'inscrire à l'espace Point focal – Enregistrement
         </p>
       </div>
 

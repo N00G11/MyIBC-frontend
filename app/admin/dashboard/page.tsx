@@ -16,14 +16,6 @@ export default function DashboardPage() {
       <Suspense fallback={<div>Chargement des graphiques...</div>}>
         <DashboardCharts />
       </Suspense>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">   
-        <div>
-          <Suspense fallback={<div>Chargement des actions...</div>}>
-            <DashboardActions />
-          </Suspense>
-        </div>
-      </div>
     </div>
   )
 }

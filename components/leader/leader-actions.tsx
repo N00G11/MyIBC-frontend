@@ -23,7 +23,7 @@ export function LeaderActions() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const storedCode = localStorage.getItem("code");
+      const storedCode = localStorage.getItem("code") || localStorage.getItem("tresorierCode");
       if (storedCode) setCode(storedCode);
     }
   }, []);

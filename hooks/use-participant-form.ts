@@ -266,9 +266,25 @@ export function useParticipantForm({ campId, code }: UseParticipantFormProps) {
       return { success: false };
     }
 
+    // Extraction des IDs des localisations
+    const selectedCountry = countries.find(c => c.name === formData.pays);
+    const selectedCity = selectedCountry?.cities.find(v => v.name === formData.ville);
+    const selectedDelegation = selectedCity?.delegations.find(d => d.name === formData.delegation);
+
+    if (!selectedCountry || !selectedCity || !selectedDelegation) {
+      setErrors({ general: "Erreur: localisation non trouvée" });
+      return { success: false };
+    }
+
+    // Création du formData sans les champs de localisation
+    const { pays, ville, delegation, ...formDataWithoutLocation } = formData;
+
     setIsSubmitting(true);
     try {
-      const response = await axiosInstance.post(`/inscription/add/${code}/${campId}`, formData);
+      const response = await axiosInstance.post(
+        `/inscription/add/${code}/${campId}/${selectedCountry.id}/${selectedCity.id}/${selectedDelegation.id}`, 
+        formDataWithoutLocation
+      );
       return { 
         success: true, 
         inscriptionCode: response.data.code 

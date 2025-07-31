@@ -13,13 +13,9 @@ interface Utilisateur {
   id: number;
   username: string;
   code: string;
-  // Support multiple possible field name variations
-  CampFondationAmount?: number;
-  campJeuneAmount?: number;
-  campLeaderAmount?: number;
   // Alternative field names that might come from API
+  campAgneauxAmount?: number;
   campFondationAmount?: number;
-  campJeunesAmount?: number;
   campLeadersAmount?: number;
   [key: string]: any; // Allow for other possible fields
 }
@@ -72,7 +68,7 @@ export function PayementForm() {
     }
   };
 
-  const handlePay = async (camp: "Camp de la Fondation" | "Camp des Jeunes" | "Camp des Leaders") => {
+  const handlePay = async (camp: "Camp des Agneaux" | "Camp de la Fondation" | "Camp des Leaders") => {
     resetMessages();
     
     if (!tresorierCode) {
@@ -83,8 +79,8 @@ export function PayementForm() {
     
     // Try multiple possible field names for amounts
     const campAmounts = {
-      "Camp de la Fondation": utilisateur.CampFondationAmount || utilisateur.campFondationAmount || 0,
-      "Camp des Jeunes": utilisateur.campJeuneAmount || utilisateur.campJeunesAmount || 0,
+      "Camp des Agneaux": utilisateur.campAgneauxAmount || 0,
+      "Camp de la Fondation": utilisateur.campFondationAmount || 0,
       "Camp des Leaders": utilisateur.campLeaderAmount || utilisateur.campLeadersAmount || 0
     };
     
@@ -123,7 +119,7 @@ export function PayementForm() {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       {/* Messages de succès et d'erreur */}
       {paymentSuccess && (
         <PaymentSuccessMessage
@@ -146,10 +142,10 @@ export function PayementForm() {
         <CardHeader className="text-center bg-gradient-to-r from-blue-50 to-purple-50">
           <CardTitle className="flex items-center justify-center gap-2 text-xl">
             <CreditCard className="h-6 w-6 text-blue-600" />
-            Enregistrer un paiement
+            Saisir un nouveau paiement
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-8">
+        <CardContent className="p-6">
           {!utilisateur ? (
             <div className="space-y-6">
               <div className="text-center">
@@ -162,7 +158,7 @@ export function PayementForm() {
                 </p>
               </div>
               
-              <div className="max-w-md mx-auto space-y-4">
+              <div className="space-y-4">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <Input
@@ -170,7 +166,7 @@ export function PayementForm() {
                     value={code}
                     onChange={e => setCode(e.target.value)}
                     onKeyPress={e => e.key === 'Enter' && handleSearch()}
-                    className="pl-10 h-12 text-base"
+                    className="pl-10 h-12 text-base w-full"
                     disabled={loading}
                   />
                 </div>
@@ -194,22 +190,22 @@ export function PayementForm() {
               </div>
             </div>
           ) : (
-            <div className="space-y-8">
+            <div className="space-y-6">
               {/* Informations utilisateur */}
-              <div className="bg-gray-50 p-6 rounded-lg">
+              <div className="bg-gray-50 p-4 rounded-lg">
                 <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
                   <User className="h-5 w-5" />
                   Informations de l'utilisateur
                 </h3>
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-3">
                   <div>
                     <span className="text-sm font-medium text-gray-600">Nom d'utilisateur</span>
                     <p className="text-lg font-semibold">{utilisateur.username}</p>
                   </div>
-                  <div className="md:col-span-2">
-                    <span className="text-sm font-medium text-gray-600">Code personnel      </span>
+                  <div>
+                    <span className="text-sm font-medium text-gray-600">Code personnel</span>
                     <p className="font-mono text-blue-700 bg-blue-100 px-3 py-1 rounded-md inline-block">
-                      {   utilisateur.code}
+                      {utilisateur.code}
                     </p>
                   </div>
                 </div>
@@ -217,20 +213,20 @@ export function PayementForm() {
 
               {/* Options de paiement */}
               <div>
-                <h3 className="font-semibold text-lg mb-6 flex items-center gap-2">
+                <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
                   <CreditCard className="h-5 w-5" />
-                  Montants disponibles pour paiement
+                  Montants disponibles
                 </h3>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {[
                     { 
-                      name: "Camp de la Fondation", 
-                      amount: utilisateur.CampFondationAmount || utilisateur.campFondationAmount || 0,
+                      name: "Camp des Agneaux", 
+                      amount: utilisateur.campAgneauxAmount || 0,
                       color: "bg-green-100 text-green-800 border-green-200"
                     },
                     { 
-                      name: "Camp des Jeunes", 
-                      amount: utilisateur.campJeuneAmount || utilisateur.campJeunesAmount || 0,
+                      name: "Camp de la Fondation", 
+                      amount: utilisateur.campFondationAmount || 0,
                       color: "bg-blue-100 text-blue-800 border-blue-200"
                     },
                     { 
@@ -239,16 +235,15 @@ export function PayementForm() {
                       color: "bg-purple-100 text-purple-800 border-purple-200"
                     }
                   ].map((camp) => (
-                    <div key={camp.name} className={`p-4 rounded-lg border-2 ${camp.color}`}>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h4 className="font-semibold">{camp.name}</h4>
-                          <p className="text-2xl font-bold">{camp.amount.toLocaleString()} FCFA</p>
-                        </div>
+                    <div key={camp.name} className={`p-3 rounded-lg border-2 ${camp.color}`}>
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-sm">{camp.name}</h4>
+                        <p className="text-xl font-bold">{camp.amount.toLocaleString()} FCFA</p>
                         <Button
                           onClick={() => handlePay(camp.name as any)}
                           disabled={payingCamp === camp.name || camp.amount <= 0}
-                          className="bg-white text-gray-800 border border-gray-300 hover:bg-gray-50"
+                          className="w-full bg-white text-gray-800 border border-gray-300 hover:bg-gray-50"
+                          size="sm"
                         >
                           {payingCamp === camp.name ? (
                             <>
@@ -258,7 +253,7 @@ export function PayementForm() {
                           ) : (
                             <>
                               <CreditCard className="mr-2 h-4 w-4" />
-                              Valider le paiement
+                              Valider
                             </>
                           )}
                         </Button>
@@ -269,14 +264,14 @@ export function PayementForm() {
               </div>
 
               {/* Actions */}
-              <div className="flex justify-between pt-6 border-t">
+              <div className="pt-4 border-t">
                 <Button
                   variant="outline"
                   onClick={handleNewPayment}
-                  className="text-gray-600 hover:text-gray-800"
+                  className="w-full text-gray-600 hover:text-gray-800"
                 >
                   <Search className="mr-2 h-4 w-4" />
-                  Rechercher un autre utilisateur
+                  Trouver un utilisateur
                 </Button>
               </div>
             </div>

@@ -12,7 +12,7 @@ export default function LoginPage() {
           Connexion à MyIBC
         </h2>
         <p className="mt-2 text-center text-sm text-myibc-graytext">
-          Accédez à votre espace personnel
+          Connectez-vous à l'espace Point focal – Enregistrement
         </p>
       </div>
 
