@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "http://82.25.115.69:8080/api", // ✅ dynamique
+  baseURL: "http://82.25.115.69:8081/api", // ✅ dynamique
   withCredentials: true,
 });
 
