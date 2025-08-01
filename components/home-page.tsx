@@ -83,6 +83,13 @@ export default function HomePage() {
     router.push("/auth/register")
   }
 
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }
+
   // Gestion du slider
   useEffect(() => {
     const timer = setInterval(() => {
@@ -92,12 +99,12 @@ export default function HomePage() {
     return () => clearInterval(timer);
   }, []);
 
-  // Gestion du scroll pour le header
+  // Gestion du scroll pour changer la couleur du texte
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
+      setIsScrolled(window.scrollY > 50);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -118,79 +125,63 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white/95 backdrop-blur-sm shadow-lg' : 'bg-transparent'
-      }`}>
-        <div className="w-full" style={{ backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.95)' : 'transparent' }}>
-          <nav className="max-w-7xl mx-auto px-4 lg:px-8">
-            <div className="flex items-center justify-between h-14 lg:h-16">
-              {/* Logo avec CMCI */}
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-white flex items-center justify-center shadow-lg">
-                  <img
-                    src="/CMCI.png"
-                    alt="CMCI Logo"
-                    className="w-8 h-8 lg:w-10 lg:h-10 object-contain"
-                  />
-                </div>
-                <h1 className={`text-xl lg:text-2xl font-bold transition-colors duration-300 ${
-                  isScrolled ? 'text-blue-900' : 'text-white'
-                }`}>
-                  MyIBC
-                </h1>
-              </div>
-
-     
-
-              {/* Action Buttons */}
-              <div className="flex items-center space-x-2 lg:space-x-4">
-                <Button
-                  onClick={handleLogin}
-                  className="bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-4 lg:py-3 lg:px-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-sm lg:text-base"
-                >
-                  Connexion
-                </Button>
-                <Button
-                  onClick={handleRegister}
-                  className={`border-2 font-medium py-2 px-4 lg:py-3 lg:px-6 rounded-lg transition-all duration-300 text-sm lg:text-base ${
-                    isScrolled 
-                      ? 'border-blue-600 bg-blue-600 text-white hover:bg-blue-700 hover:border-blue-700' 
-                      : 'border-white bg-white text-blue-900 hover:bg-gray-100'
-                  }`}
-                >
-                  <span className="hidden sm:inline">S'enregistrer</span>
-                  <span className="sm:hidden">Inscription</span>
-                </Button>
-              </div>
-            </div>
-
-            {/* Mobile Navigation - Displayed below header on small screens */}
-            <div className="sm:hidden border-t border-white/20 py-2">
-              <div className="flex justify-center space-x-4 overflow-x-auto">
-                <a href="#accueil" className={`${
-                  isScrolled ? 'text-gray-700' : 'text-white'
-                } font-medium transition-colors duration-300 hover:text-yellow-400 whitespace-nowrap text-sm py-1`}>Accueil</a>
-                <a href="#camps" className={`${
-                  isScrolled ? 'text-gray-700' : 'text-white'
-                } font-medium transition-colors duration-300 hover:text-yellow-400 whitespace-nowrap text-sm py-1`}>Camps</a>
-                <a href="#programmes" className={`${
-                  isScrolled ? 'text-gray-700' : 'text-white'
-                } font-medium transition-colors duration-300 hover:text-yellow-400 whitespace-nowrap text-sm py-1`}>Programmes</a>
-                <a href="#galerie" className={`${
-                  isScrolled ? 'text-gray-700' : 'text-white'
-                } font-medium transition-colors duration-300 hover:text-yellow-400 whitespace-nowrap text-sm py-1`}>Galerie</a>
-                <a href="#contact" className={`${
-                  isScrolled ? 'text-gray-700' : 'text-white'
-                } font-medium transition-colors duration-300 hover:text-yellow-400 whitespace-nowrap text-sm py-1`}>Contact</a>
-              </div>
-            </div>
-          </nav>
+      {/* Bouton Commencer fixe en bas - s'affiche seulement en scrollant */}
+      {isScrolled && (
+        <div className="fixed bottom-8 right-8 z-50">
+          <Button
+            onClick={scrollToTop}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-full shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 flex items-center space-x-2 animate-fade-in"
+          >
+            <ArrowRight className="w-5 h-5 rotate-[-90deg]" />
+            <span>Commencer</span>
+          </Button>
         </div>
-      </header>
+      )}
 
       {/* Hero Section avec définition CBI */}
       <section id="accueil" className="relative w-full h-screen overflow-hidden">
+        {/* Logo dans le Hero Section */}
+        <div className="absolute top-4 left-8 z-40 flex flex-col items-center space-y-3">
+          <div className="w-28 h-28 lg:w-36 lg:h-36 rounded-lg flex items-center justify-center">
+            <img
+              src="/CMCI0.png"
+              alt="CMCI Logo"
+              className="w-26 h-26 lg:w-34 lg:h-34 object-contain"
+            />
+          </div>
+          <h1 className="text-xl lg:text-2xl font-bold text-white drop-shadow-lg text-center">
+            MyIBC
+          </h1>
+        </div>
+
+        {/* Boutons d'action dans le Hero */}
+        <div className="absolute top-8 right-8 z-40 flex items-center space-x-4">
+          <Button
+            onClick={handleLogin}
+            className="font-medium py-3 px-6 lg:py-4 lg:px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-base lg:text-lg bg-yellow-500 hover:bg-yellow-600 text-white"
+          >
+            Connexion
+          </Button>
+          <Button
+            onClick={handleRegister}
+            className="border-2 border-white bg-white/10 text-white hover:bg-white hover:text-blue-900 backdrop-blur-sm font-medium py-3 px-6 lg:py-4 lg:px-8 rounded-lg transition-all duration-300 shadow-lg text-base lg:text-lg"
+          >
+            <span className="hidden sm:inline">S'enregistrer</span>
+            <span className="sm:hidden">Inscription</span>
+          </Button>
+        </div>
+
+        {/* Navigation mobile en bas */}
+        <div className="absolute bottom-32 left-1/2 transform -translate-x-1/2 z-50 lg:hidden">
+          <div className="bg-black/40 backdrop-blur-sm rounded-full px-6 py-3 border border-white/20">
+            <div className="flex space-x-6">
+              <a href="#accueil" className="text-white font-medium text-sm hover:text-yellow-400 transition-colors duration-300">Accueil</a>
+              <a href="#galerie" className="text-white font-medium text-sm hover:text-yellow-400 transition-colors duration-300">Galerie</a>
+              <a href="#contact" className="text-white font-medium text-sm hover:text-yellow-400 transition-colors duration-300">Contact</a>
+            </div>
+          </div>
+        </div>
+
         <div className="relative w-full h-full">
           {slides.map((slide, index) => {
             const slideClass = 'absolute inset-0 transition-all duration-1000 ease-in-out ' + 
@@ -585,43 +576,78 @@ function StatsSection() {
 // Composant Gallery Section
 function GallerySection() {
   const [ref, isInView] = useInView();
+  const router = useRouter();
+
+  const handleRegister = () => {
+    router.push("/auth/register");
+  };
 
   const galleryItems = [
     { 
       image: "/cmci1.png", 
       title: "CBI Koumé 2022", 
-      description: "Camp Biblique International - Enseignements et formation",
+      description: "Camp Biblique International - Enseignements et formation spirituelle",
       alt: "International Bible Youth Camp Koumé 2022 - Teaching session"
     },
     { 
-      image: "/cmci7.png", 
-      title: "Leadership Formation", 
-      description: "Sessions de formation des leaders avec le Pasteur",
-      alt: "Pastor Theodore Andoseh during leadership training session"
+      image: "/cmci2.png", 
+      title: "Formation des Leaders", 
+      description: "Sessions intensives de formation pour futurs leaders spirituels",
+      alt: "Leadership training and development session"
     },
     { 
       image: "/cmci3.png", 
-      title: "Assemblée des Participants", 
-      description: "Moments de communion et d'échange entre participants",
-      alt: "Large gathering of participants in worship"
+      title: "Assemblée Générale", 
+      description: "Grande assemblée des participants venus de toute l'Afrique",
+      alt: "Large gathering of participants from across Africa"
     },
     { 
       image: "/cmci4.png", 
       title: "Louange et Adoration", 
-      description: "Temps de louange avec instruments et chorégraphies",
-      alt: "Praise and worship session with live music"
+      description: "Temps de louange collective avec instruments et chorégraphies",
+      alt: "Praise and worship session with live music and choreography"
     },
     { 
       image: "/cmci5.png", 
       title: "Études Bibliques", 
-      description: "Sessions d'approfondissement de la Parole de Dieu",
-      alt: "Bible study sessions with participants"
+      description: "Sessions approfondies d'étude de la Parole de Dieu",
+      alt: "In-depth Bible study sessions with participants"
     },
     { 
       image: "/cmci6.png", 
       title: "Communion Fraternelle", 
-      description: "Moments de partage et de communion entre frères et sœurs",
-      alt: "Fellowship time among participants"
+      description: "Moments précieux de partage entre frères et sœurs en Christ",
+      alt: "Fellowship time and sharing among brothers and sisters"
+    },
+    { 
+      image: "/cmci7.png", 
+      title: "Enseignement Pastoral", 
+      description: "Messages inspirants du Pasteur Théodore Andoseh",
+      alt: "Pastor Theodore Andoseh delivering inspirational teaching"
+    },
+    { 
+      image: "/cmci8.png", 
+      title: "Prière Collective", 
+      description: "Temps de prière intense et intercession communautaire",
+      alt: "Collective prayer and community intercession time"
+    },
+    { 
+      image: "/cmci9.png", 
+      title: "Ateliers Formation", 
+      description: "Ateliers pratiques de formation ministerielle et spirituelle",
+      alt: "Practical workshops for ministerial and spiritual training"
+    },
+    { 
+      image: "/cmci10.png", 
+      title: "Jeunesse CBI", 
+      description: "Jeunes participants engagés dans la vision divine",
+      alt: "Young participants committed to the divine vision"
+    },
+    { 
+      image: "/cmci11.png", 
+      title: "Célébration Finale", 
+      description: "Moment de célébration et d'engagement pour la mission",
+      alt: "Final celebration and commitment to the mission"
     }
   ];
 
@@ -631,61 +657,105 @@ function GallerySection() {
   return (
     <section ref={ref} id="galerie" className="py-16 lg:py-20 bg-gray-50">
       <div className="w-full bg-gray-50">
-        <div className="max-w-6xl mx-auto px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className={sectionClass}>
             <div className="text-center mb-12 lg:mb-16">
               <h2 className="text-3xl lg:text-5xl font-bold text-blue-900 mb-6">
                 Galerie Photos CBI
               </h2>
-              <p className="text-lg lg:text-xl text-gray-600">
-                Revivez les moments forts de nos Camps Bibliques Internationaux à travers ces images authentiques
+              <p className="text-lg lg:text-xl text-gray-600 max-w-4xl mx-auto">
+                Revivez les moments forts de nos Camps Bibliques Internationaux à travers ces images authentiques 
+                qui témoignent de l'impact transformateur de nos formations spirituelles
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            {/* Grille responsive optimisée */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
               {galleryItems.map((item, index) => (
-                <div key={index} className="relative group overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500">
-                  <div className="relative h-64 lg:h-80 overflow-hidden">
+                <div 
+                  key={index} 
+                  className={`relative group overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 ${
+                    index === 0 ? 'sm:col-span-2 lg:col-span-2 xl:col-span-2' : 
+                    index === 3 ? 'lg:col-span-2 xl:col-span-1' :
+                    index === 6 ? 'sm:col-span-2 lg:col-span-1' : ''
+                  }`}
+                >
+                  <div className={`relative overflow-hidden ${
+                    index === 0 ? 'h-80 lg:h-96' : 
+                    index === 3 ? 'h-64 lg:h-80' :
+                    'h-56 lg:h-72'
+                  }`}>
                     <img
                       src={item.image}
                       alt={item.alt}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      loading="lazy"
+                      loading={index < 4 ? "eager" : "lazy"}
                       onError={(e) => {
-                        // Fallback si l'image ne charge pas
                         const target = e.target as HTMLImageElement;
                         target.src = `data:image/svg+xml,${encodeURIComponent(`
                           <svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
-                            <rect width="100%" height="100%" fill="linear-gradient(135deg, #3b82f6, #1e40af)"/>
-                            <text x="50%" y="40%" text-anchor="middle" fill="white" font-size="24" font-family="Arial">📸</text>
-                            <text x="50%" y="60%" text-anchor="middle" fill="white" font-size="16" font-family="Arial">${item.title}</text>
+                            <defs>
+                              <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#1e40af;stop-opacity:1" />
+                              </linearGradient>
+                            </defs>
+                            <rect width="100%" height="100%" fill="url(#grad)"/>
+                            <text x="50%" y="40%" text-anchor="middle" fill="white" font-size="32" font-family="Arial">📸</text>
+                            <text x="50%" y="60%" text-anchor="middle" fill="white" font-size="14" font-family="Arial">Image non disponible</text>
+                            <text x="50%" y="75%" text-anchor="middle" fill="white" font-size="12" font-family="Arial">${item.title}</text>
                           </svg>
                         `)}`;
                       }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     
-                    {/* Overlay avec informations */}
-                    <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-                      <h3 className="text-white font-bold text-lg mb-2">{item.title}</h3>
-                      <p className="text-white/90 text-sm leading-relaxed">{item.description}</p>
+                    {/* Overlay gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    {/* Contenu overlay */}
+                    <div className="absolute bottom-0 left-0 right-0 p-4 lg:p-6 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+                      <h3 className="text-white font-bold text-lg lg:text-xl mb-2 leading-tight">
+                        {item.title}
+                      </h3>
+                      <p className="text-white/90 text-sm lg:text-base leading-relaxed line-clamp-2">
+                        {item.description}
+                      </p>
                     </div>
                     
                     {/* Badge CBI */}
-                    <div className="absolute top-4 right-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                      CBI
+                    <div className="absolute top-3 right-3 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-500 shadow-lg">
+                      CBI {2009 + index}
                     </div>
-            
+
+                    {/* Indicateur de zoom */}
+                    <div className="absolute top-3 left-3 bg-white/20 backdrop-blur-sm text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                      <Camera className="w-4 h-4" />
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
             
-            {/* Call to action */}
+           
+            {/* Call to action amélioré */}
             <div className="text-center mt-12">
-              <p className="text-gray-600 mb-6">
-                Découvrez plus de moments exceptionnels de nos camps sur nos réseaux sociaux
-              </p>
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-8 lg:p-12 text-white">
+                <h3 className="text-2xl lg:text-3xl font-bold mb-4">
+                  Rejoignez-nous au prochain CBI
+                </h3>
+                <p className="text-blue-100 mb-6 text-lg max-w-2xl mx-auto">
+                  Découvrez plus de moments exceptionnels et créez vos propres souvenirs 
+                  lors de nos prochains Camps Bibliques Internationaux
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button 
+                    className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-8 py-3 rounded-lg transition-all duration-300"
+                    onClick={handleRegister}
+                  >
+                    S'inscrire maintenant
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

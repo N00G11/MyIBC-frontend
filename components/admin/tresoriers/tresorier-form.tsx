@@ -332,13 +332,73 @@ const paysList: Pays[] = [
     }
   };
 
-  const validateForm = (): boolean => {
+  // Fonctions utilitaires pour nettoyer les données (ajout)
+const cleanPhoneNumber = (phone: string): string => {
+  // Supprimer tous les espaces, tirets, points et parenthèses
+  return phone.replace(/[\s\-\.\(\)]/g, '');
+};
+
+const cleanFullName = (name: string): string => {
+  // Supprimer les espaces en début/fin et remplacer les espaces multiples par un seul
+  return name.trim().replace(/\s+/g, ' ');
+};
+
+// Fonction de validation du numéro de téléphone harmonisée
+function validatePhoneInput(input: string, countryDialCode?: string): { isValid: boolean; error?: string } {
+  // Nettoyer l'entrée
+  const cleanInput = input.replace(/[^\d]/g, '');
+  
+  // Vérifier si vide
+  if (!cleanInput) {
+    return { isValid: false, error: 'Le numéro de téléphone est requis' };
+  }
+  
+  // Vérifier la longueur minimale
+  if (cleanInput.length < 6) {
+    return { isValid: false, error: 'Le numéro doit contenir au moins 6 chiffres' };
+  }
+  
+  // Vérifier la longueur maximale
+  if (cleanInput.length > 15) {
+    return { isValid: false, error: 'Le numéro ne peut pas dépasser 15 chiffres' };
+  }
+  
+  // Validation spécifique selon le pays
+  if (countryDialCode) {
+    switch (countryDialCode) {
+      case '+33': // France
+        if (cleanInput.length !== 9) {
+          return { isValid: false, error: 'Le numéro français doit contenir 9 chiffres' };
+        }
+        break;
+      case '+237': // Cameroun
+        if (cleanInput.length !== 9) {
+          return { isValid: false, error: 'Le numéro camerounais doit contenir 9 chiffres' };
+        }
+        break;
+      case '+1': // USA/Canada
+        if (cleanInput.length !== 10) {
+          return { isValid: false, error: 'Le numéro doit contenir 10 chiffres' };
+        }
+        break;
+      default:
+        if (cleanInput.length < 7 || cleanInput.length > 12) {
+          return { isValid: false, error: 'Le numéro doit contenir entre 7 et 12 chiffres' };
+        }
+    }
+  }
+  
+  return { isValid: true };
+}
+
+const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
-    // Validation nom complet
-    if (!formData.nomComplet.trim()) {
+    // Validation nom complet harmonisée
+    const cleanedNomComplet = cleanFullName(formData.nomComplet);
+    if (!cleanedNomComplet) {
       newErrors.nomComplet = 'Le nom complet est requis';
-    } else if (formData.nomComplet.trim().length < 2) {
+    } else if (cleanedNomComplet.length < 2) {
       newErrors.nomComplet = 'Le nom complet doit contenir au moins 2 caractères';
     }
 
@@ -347,11 +407,10 @@ const paysList: Pays[] = [
       newErrors.country = 'Veuillez sélectionner un pays';
     }
 
-    // Validation téléphone
-    if (!formData.phoneNumber.trim()) {
-      newErrors.phoneNumber = 'Le numéro de téléphone est requis';
-    } else if (!/^\d+$/.test(formData.phoneNumber)) {
-      newErrors.phoneNumber = 'Le numéro doit contenir uniquement des chiffres';
+    // Validation téléphone harmonisée
+    const phoneValidation = validatePhoneInput(formData.phoneNumber, getSelectedCountryData()?.dialCode);
+    if (!phoneValidation.isValid) {
+      newErrors.phoneNumber = phoneValidation.error;
     }
 
     // Validation mot de passe
@@ -375,13 +434,15 @@ const paysList: Pays[] = [
     try {
       const selectedCountryData = getSelectedCountryData();
       
-      const username = formData.nomComplet.trim();
-      const telephone = `${selectedCountryData!.dialCode} ${formData.phoneNumber}`;
+      // Nettoyer les données avant envoi
+      const cleanedNomComplet = cleanFullName(formData.nomComplet);
+      const cleanedPhoneNumber = cleanPhoneNumber(formData.phoneNumber);
+      const telephone = `${selectedCountryData!.dialCode} ${cleanedPhoneNumber}`;
       
       await axiosInstance.post("/tresoriers", {
-        username,
+        username: cleanedNomComplet,
         telephone,
-        pays: selectedCountryData!.nom, // corrigé: nom au lieu de name
+        pays: selectedCountryData!.nom,
         password: formData.password,
       });
       
@@ -427,7 +488,7 @@ const paysList: Pays[] = [
         )}
         
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Nom complet */}
+          {/* Nom complet avec nettoyage harmonisé */}
           <div className="space-y-2">
             <Label htmlFor="nomComplet" className="flex items-center gap-1">
               <User className="w-4 h-4" />
@@ -436,7 +497,16 @@ const paysList: Pays[] = [
             <Input
               id="nomComplet"
               value={formData.nomComplet}
-              onChange={(e) => handleInputChange('nomComplet', e.target.value)}
+              onChange={(e) => {
+                // Nettoyer automatiquement lors de la saisie (espaces multiples)
+                const cleanedValue = e.target.value.replace(/\s+/g, ' ');
+                handleInputChange('nomComplet', cleanedValue);
+              }}
+              onBlur={(e) => {
+                // Nettoyage final lors de la perte de focus
+                const cleanedValue = cleanFullName(e.target.value);
+                handleInputChange('nomComplet', cleanedValue);
+              }}
               placeholder="Nom complet du trésorier"
               className={errors.nomComplet ? 'border-red-300' : ''}
             />
@@ -505,7 +575,7 @@ const paysList: Pays[] = [
             )}
           </div>
 
-          {/* Champ numéro de téléphone */}
+          {/* Champ numéro de téléphone avec validation harmonisée */}
           <div className="space-y-2">
             <Label className="flex items-center gap-1">
               <Phone className="w-4 h-4" />
@@ -520,7 +590,45 @@ const paysList: Pays[] = [
               <Input
                 type="tel"
                 value={formData.phoneNumber}
-                onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                onChange={(e) => {
+                  const inputValue = e.target.value;
+                  
+                  // Nettoyer automatiquement l'entrée
+                  const cleanedValue = inputValue.replace(/[^\d]/g, '');
+                  
+                  // Validation en temps réel
+                  const validation = validatePhoneInput(cleanedValue, selectedCountryData?.dialCode);
+                  
+                  // Mettre à jour la valeur
+                  handleInputChange('phoneNumber', cleanedValue);
+                  
+                  // Mettre à jour les erreurs
+                  if (!validation.isValid && cleanedValue.length > 0) {
+                    setErrors(prev => ({ ...prev, phoneNumber: validation.error }));
+                  } else {
+                    setErrors(prev => ({ ...prev, phoneNumber: '' }));
+                  }
+                  
+                  // Avertissement pour caractères supprimés
+                  if (inputValue !== cleanedValue && inputValue.length > 0) {
+                    setErrors(prev => ({ ...prev, phoneNumber: 'Seuls les chiffres sont autorisés' }));
+                    setTimeout(() => {
+                      setErrors(prev => {
+                        if (prev.phoneNumber === 'Seuls les chiffres sont autorisés') {
+                          const newValidation = validatePhoneInput(cleanedValue, selectedCountryData?.dialCode);
+                          return { ...prev, phoneNumber: newValidation.isValid ? '' : newValidation.error || '' };
+                        }
+                        return prev;
+                      });
+                    }, 2000);
+                  }
+                }}
+                onBlur={() => {
+                  const validation = validatePhoneInput(formData.phoneNumber, selectedCountryData?.dialCode);
+                  if (!validation.isValid) {
+                    setErrors(prev => ({ ...prev, phoneNumber: validation.error }));
+                  }
+                }}
                 placeholder="Votre numéro"
                 className={`${selectedCountryData ? 'rounded-l-none' : ''} ${errors.phoneNumber ? 'border-red-300' : ''}`}
               />
@@ -529,15 +637,18 @@ const paysList: Pays[] = [
               <p className="text-sm text-red-600">{errors.phoneNumber}</p>
             )}
             <p className="text-xs text-gray-500">
-              Saisissez le numéro sans l'indicatif pays
+              {selectedCountryData?.dialCode === '+33' ? 'Format: 123456789 (9 chiffres)' :
+               selectedCountryData?.dialCode === '+237' ? 'Format: 123456789 (9 chiffres)' :
+               selectedCountryData?.dialCode === '+1' ? 'Format: 1234567890 (10 chiffres)' :
+               'Saisissez le numéro sans l\'indicatif pays (chiffres uniquement)'}
             </p>
           </div>
 
           {/* Aperçu du numéro complet */}
-          {selectedCountryData && formData.phoneNumber && (
+          {selectedCountryData && formData.phoneNumber && !errors.phoneNumber && (
             <div className="bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-md p-3">
               <p className="text-sm text-gray-900">
-                <strong>Numéro complet:</strong> {selectedCountryData.dialCode}{formData.phoneNumber}
+                <strong>Numéro complet:</strong> {selectedCountryData.dialCode} {formData.phoneNumber}
               </p>
             </div>
           )}

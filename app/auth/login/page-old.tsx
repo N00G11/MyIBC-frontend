@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronDown, Phone, Globe, LogIn, User, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
-import { CmciLogo } from "@/components/cmci-logo";
+import Image from 'next/image';
 
 // Types pour les erreurs
 interface FormErrors {
@@ -172,7 +172,14 @@ const LoginPage = () => {
             Retour à l'accueil
           </button>
           <div className="mb-6">
-            <CmciLogo className="h-16 w-auto mx-auto" />
+            <Image
+              src="/CMCI.png"
+              alt="CMCI Logo"
+              width={120}
+              height={120}
+              className="object-contain mx-auto"
+              priority
+            />
           </div>
           <h1 className="text-3xl font-bold text-myibc-blue mb-2">Connexion</h1>
           <p className="text-myibc-graytext">Connectez-vous à votre compte MyIBC</p>

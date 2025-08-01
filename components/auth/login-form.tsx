@@ -400,14 +400,18 @@ export const LoginForm = () => {
         newErrors.country = 'Veuillez sélectionner un pays';
       }
       
-      // Utiliser la nouvelle validation
+      // Utiliser la validation harmonisée
       const phoneValidation = validatePhoneInput(phoneNumber, getSelectedCountryData()?.dialCode);
       if (!phoneValidation.isValid) {
         newErrors.phoneNumber = phoneValidation.error;
       }
     } else {
-      if (!myibcCode.trim()) {
+      // Validation du code MyIBC avec les mêmes contraintes que le nom complet
+      const cleanedCode = cleanFullName(myibcCode);
+      if (!cleanedCode) {
         newErrors.myibcCode = 'Le code MyIBC est requis';
+      } else if (cleanedCode.length < 2) {
+        newErrors.myibcCode = 'Le code MyIBC doit contenir au moins 2 caractères';
       }
     }
 
@@ -677,8 +681,15 @@ export const LoginForm = () => {
               type="text"
               value={myibcCode}
               onChange={(e) => {
-                setMyibcCode(e.target.value);
+                // Nettoyer automatiquement lors de la saisie (espaces multiples)
+                const cleanedValue = e.target.value.replace(/\s+/g, ' ');
+                setMyibcCode(cleanedValue);
                 if (errors.myibcCode) setErrors(prev => ({ ...prev, myibcCode: '' }));
+              }}
+              onBlur={(e) => {
+                // Nettoyage final lors de la perte de focus
+                const cleanedValue = cleanFullName(e.target.value);
+                setMyibcCode(cleanedValue);
               }}
               placeholder="Votre code MyIBC"
               className={`w-full px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-myibc-blue focus:border-myibc-blue ${
